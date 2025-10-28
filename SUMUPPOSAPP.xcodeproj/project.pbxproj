@@ -1,0 +1,792 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1B982EC42EB13A5E00D927B3 /* CartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824E82EB13A5E00D927B3 /* CartView.swift */; };
+		1B982EC52EB13A5E00D927B3 /* CartItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824DD2EB13A5E00D927B3 /* CartItem.swift */; };
+		1B982EC62EB13A5E00D927B3 /* SecretsLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824DB2EB13A5E00D927B3 /* SecretsLoader.swift */; };
+		1B982EC72EB13A5E00D927B3 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824F42EB13A5E00D927B3 /* SettingsView.swift */; };
+		1B982EC82EB13A5E00D927B3 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9825012EB13A5E00D927B3 /* AppLogger.swift */; };
+		1B982EC92EB13A5E00D927B3 /* CustomerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824ED2EB13A5E00D927B3 /* CustomerView.swift */; };
+		1B982ECA2EB13A5E00D927B3 /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824FB2EB13A5E00D927B3 /* AppStore.swift */; };
+		1B982ECB2EB13A5E00D927B3 /* UUID+Lower.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9825042EB13A5E00D927B3 /* UUID+Lower.swift */; };
+		1B982ECC2EB13A5E00D927B3 /* WaitingForCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824F02EB13A5E00D927B3 /* WaitingForCardView.swift */; };
+		1B982ECE2EB13A5E00D927B3 /* Validators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9825052EB13A5E00D927B3 /* Validators.swift */; };
+		1B982ECF2EB13A5E00D927B3 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824F72EB13A5E00D927B3 /* APIClient.swift */; };
+		1B982ED02EB13A5E00D927B3 /* RecieptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824F22EB13A5E00D927B3 /* RecieptView.swift */; };
+		1B982ED12EB13A5E00D927B3 /* PaymentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824FC2EB13A5E00D927B3 /* PaymentViewModel.swift */; };
+		1B982ED22EB13A5E00D927B3 /* Debounce.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9825032EB13A5E00D927B3 /* Debounce.swift */; };
+		1B982ED32EB13A5E00D927B3 /* Customer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824DE2EB13A5E00D927B3 /* Customer.swift */; };
+		1B982ED42EB13A5E00D927B3 /* PaymentAttemptDT0.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824DF2EB13A5E00D927B3 /* PaymentAttemptDT0.swift */; };
+		1B982ED52EB13A5E00D927B3 /* TerminalRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824E12EB13A5E00D927B3 /* TerminalRef.swift */; };
+		1B982ED62EB13A5E00D927B3 /* POSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824D82EB13A5E00D927B3 /* POSApp.swift */; };
+		1B982ED72EB13A5E00D927B3 /* CatalogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824EA2EB13A5E00D927B3 /* CatalogView.swift */; };
+		1B982ED82EB13A5E00D927B3 /* PaymentsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824F92EB13A5E00D927B3 /* PaymentsAPI.swift */; };
+		1B982ED92EB13A5E00D927B3 /* PriceOverrideSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824EB2EB13A5E00D927B3 /* PriceOverrideSheet.swift */; };
+		1B982EDA2EB13A5E00D927B3 /* LocationsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824F82EB13A5E00D927B3 /* LocationsAPI.swift */; };
+		1B982EDC2EB13A5E00D927B3 /* Product.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824E02EB13A5E00D927B3 /* Product.swift */; };
+		1B982EDD2EB13A5E00D927B3 /* CatalogRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824E32EB13A5E00D927B3 /* CatalogRepository.swift */; };
+		1B982EDE2EB13A5E00D927B3 /* SumUpTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824FF2EB13A5E00D927B3 /* SumUpTypes.swift */; };
+		1B982EDF2EB13A5E00D927B3 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824E62EB13A5E00D927B3 /* AuthView.swift */; };
+		1B982EE02EB13A5E00D927B3 /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9825022EB13A5E00D927B3 /* CurrencyFormatter.swift */; };
+		1B982EE12EB13A5E00D927B3 /* PaymentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824EF2EB13A5E00D927B3 /* PaymentView.swift */; };
+		1B982EE22EB13A5E00D927B3 /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9824D72EB13A5E00D927B3 /* AppRouter.swift */; };
+		1B982EF92EB1465000D927B3 /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1B9824DA2EB13A5E00D927B3 /* Secrets.plist */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		1B9824AB2EB13A4800D927B3 /* SUMUPPOSAPP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SUMUPPOSAPP.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1B9824D72EB13A5E00D927B3 /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouter.swift; sourceTree = "<group>"; };
+		1B9824D82EB13A5E00D927B3 /* POSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = POSApp.swift; sourceTree = "<group>"; };
+		1B9824DA2EB13A5E00D927B3 /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Secrets.plist; sourceTree = "<group>"; };
+		1B9824DB2EB13A5E00D927B3 /* SecretsLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretsLoader.swift; sourceTree = "<group>"; };
+		1B9824DD2EB13A5E00D927B3 /* CartItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartItem.swift; sourceTree = "<group>"; };
+		1B9824DE2EB13A5E00D927B3 /* Customer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Customer.swift; sourceTree = "<group>"; };
+		1B9824DF2EB13A5E00D927B3 /* PaymentAttemptDT0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentAttemptDT0.swift; sourceTree = "<group>"; };
+		1B9824E02EB13A5E00D927B3 /* Product.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Product.swift; sourceTree = "<group>"; };
+		1B9824E12EB13A5E00D927B3 /* TerminalRef.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalRef.swift; sourceTree = "<group>"; };
+		1B9824E32EB13A5E00D927B3 /* CatalogRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogRepository.swift; sourceTree = "<group>"; };
+		1B9824E62EB13A5E00D927B3 /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
+		1B9824E82EB13A5E00D927B3 /* CartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartView.swift; sourceTree = "<group>"; };
+		1B9824EA2EB13A5E00D927B3 /* CatalogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogView.swift; sourceTree = "<group>"; };
+		1B9824EB2EB13A5E00D927B3 /* PriceOverrideSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceOverrideSheet.swift; sourceTree = "<group>"; };
+		1B9824ED2EB13A5E00D927B3 /* CustomerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerView.swift; sourceTree = "<group>"; };
+		1B9824EF2EB13A5E00D927B3 /* PaymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentView.swift; sourceTree = "<group>"; };
+		1B9824F02EB13A5E00D927B3 /* WaitingForCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitingForCardView.swift; sourceTree = "<group>"; };
+		1B9824F22EB13A5E00D927B3 /* RecieptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecieptView.swift; sourceTree = "<group>"; };
+		1B9824F42EB13A5E00D927B3 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		1B9824F72EB13A5E00D927B3 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		1B9824F82EB13A5E00D927B3 /* LocationsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsAPI.swift; sourceTree = "<group>"; };
+		1B9824F92EB13A5E00D927B3 /* PaymentsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentsAPI.swift; sourceTree = "<group>"; };
+		1B9824FB2EB13A5E00D927B3 /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
+		1B9824FC2EB13A5E00D927B3 /* PaymentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentViewModel.swift; sourceTree = "<group>"; };
+		1B9824FF2EB13A5E00D927B3 /* SumUpTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SumUpTypes.swift; sourceTree = "<group>"; };
+		1B9825012EB13A5E00D927B3 /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogger.swift; sourceTree = "<group>"; };
+		1B9825022EB13A5E00D927B3 /* CurrencyFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyFormatter.swift; sourceTree = "<group>"; };
+		1B9825032EB13A5E00D927B3 /* Debounce.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Debounce.swift; sourceTree = "<group>"; };
+		1B9825042EB13A5E00D927B3 /* UUID+Lower.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UUID+Lower.swift"; sourceTree = "<group>"; };
+		1B9825052EB13A5E00D927B3 /* Validators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Validators.swift; sourceTree = "<group>"; };
+		1B982ABD2EB13A5E00D927B3 /* schema.prisma */ = {isa = PBXFileReference; lastKnownFileType = text; path = schema.prisma; sourceTree = "<group>"; };
+		1B982ABF2EB13A5E00D927B3 /* deviceAuth.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = deviceAuth.ts; sourceTree = "<group>"; };
+		1B982AC12EB13A5E00D927B3 /* client.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = client.ts; sourceTree = "<group>"; };
+		1B982AC22EB13A5E00D927B3 /* prisma.schema */ = {isa = PBXFileReference; lastKnownFileType = text; path = prisma.schema; sourceTree = "<group>"; };
+		1B982AC42EB13A5E00D927B3 /* payments.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = payments.ts; sourceTree = "<group>"; };
+		1B982AC52EB13A5E00D927B3 /* reconciliation.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = reconciliation.ts; sourceTree = "<group>"; };
+		1B982AC72EB13A5E00D927B3 /* error.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = error.ts; sourceTree = "<group>"; };
+		1B982AC92EB13A5E00D927B3 /* admin.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = admin.ts; sourceTree = "<group>"; };
+		1B982ACA2EB13A5E00D927B3 /* health.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = health.ts; sourceTree = "<group>"; };
+		1B982ACB2EB13A5E00D927B3 /* shopify.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = shopify.ts; sourceTree = "<group>"; };
+		1B982ACC2EB13A5E00D927B3 /* sumup.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = sumup.ts; sourceTree = "<group>"; };
+		1B982ACD2EB13A5E00D927B3 /* webhooks.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = webhooks.ts; sourceTree = "<group>"; };
+		1B982ACF2EB13A5E00D927B3 /* shopifyAdmin.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = shopifyAdmin.ts; sourceTree = "<group>"; };
+		1B982AD02EB13A5E00D927B3 /* sumupCloud.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = sumupCloud.ts; sourceTree = "<group>"; };
+		1B982AD12EB13A5E00D927B3 /* sumupSdkProxy.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = sumupSdkProxy.ts; sourceTree = "<group>"; };
+		1B982AD32EB13A5E00D927B3 /* config.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = config.ts; sourceTree = "<group>"; };
+		1B982AD42EB13A5E00D927B3 /* index.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = index.ts; sourceTree = "<group>"; };
+		1B982AD62EB13A5E00D927B3 /* .env */ = {isa = PBXFileReference; lastKnownFileType = text; path = .env; sourceTree = "<group>"; };
+		1B982AD72EB13A5E00D927B3 /* package.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = package.json; sourceTree = "<group>"; };
+		1B982AD82EB13A5E00D927B3 /* package-lock.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "package-lock.json"; sourceTree = "<group>"; };
+		1B982AD92EB13A5E00D927B3 /* tsconfig.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tsconfig.json; sourceTree = "<group>"; };
+		1B982ADB2EB13A5E00D927B3 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		1B982ADC2EB13A5E00D927B3 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		1B982EE32EB13A6A00D927B3 /* Forms.tsx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = Forms.tsx; sourceTree = "<group>"; };
+		1B982EE42EB13A6A00D927B3 /* Layout.tsx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = Layout.tsx; sourceTree = "<group>"; };
+		1B982EE62EB13A6A00D927B3 /* api.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = api.ts; sourceTree = "<group>"; };
+		1B982EE82EB13A6A00D927B3 /* index.tsx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = index.tsx; sourceTree = "<group>"; };
+		1B982EE92EB13A6A00D927B3 /* locations.tsx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = locations.tsx; sourceTree = "<group>"; };
+		1B982EEA2EB13A6A00D927B3 /* terminals.tsx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = terminals.tsx; sourceTree = "<group>"; };
+		1B982EEB2EB13A6A00D927B3 /* users.tsx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = users.tsx; sourceTree = "<group>"; };
+		1B982EEE2EB13A6A00D927B3 /* .env.local */ = {isa = PBXFileReference; lastKnownFileType = text; path = .env.local; sourceTree = "<group>"; };
+		1B982EF02EB13A6A00D927B3 /* next.config.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = next.config.js; sourceTree = "<group>"; };
+		1B982EF12EB13A6A00D927B3 /* package.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = package.json; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1B9824A82EB13A4800D927B3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1B9824A22EB13A4800D927B3 = {
+			isa = PBXGroup;
+			children = (
+				1B982EF22EB13A6A00D927B3 /* admin */,
+				1B982ADD2EB13A5E00D927B3 /* pos-suite */,
+				1B9824AC2EB13A4800D927B3 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		1B9824AC2EB13A4800D927B3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1B9824AB2EB13A4800D927B3 /* SUMUPPOSAPP.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1B9824D92EB13A5E00D927B3 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				1B9824D72EB13A5E00D927B3 /* AppRouter.swift */,
+				1B9824D82EB13A5E00D927B3 /* POSApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		1B9824DC2EB13A5E00D927B3 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				1B9824DA2EB13A5E00D927B3 /* Secrets.plist */,
+				1B9824DB2EB13A5E00D927B3 /* SecretsLoader.swift */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		1B9824E22EB13A5E00D927B3 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				1B9824DD2EB13A5E00D927B3 /* CartItem.swift */,
+				1B9824DE2EB13A5E00D927B3 /* Customer.swift */,
+				1B9824DF2EB13A5E00D927B3 /* PaymentAttemptDT0.swift */,
+				1B9824E02EB13A5E00D927B3 /* Product.swift */,
+				1B9824E12EB13A5E00D927B3 /* TerminalRef.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		1B9824E42EB13A5E00D927B3 /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+				1B9824E32EB13A5E00D927B3 /* CatalogRepository.swift */,
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+		1B9824E52EB13A5E00D927B3 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				1B9824E22EB13A5E00D927B3 /* Models */,
+				1B9824E42EB13A5E00D927B3 /* Repositories */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		1B9824E72EB13A5E00D927B3 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				1B9824E62EB13A5E00D927B3 /* AuthView.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		1B9824E92EB13A5E00D927B3 /* Cart */ = {
+			isa = PBXGroup;
+			children = (
+				1B9824E82EB13A5E00D927B3 /* CartView.swift */,
+			);
+			path = Cart;
+			sourceTree = "<group>";
+		};
+		1B9824EC2EB13A5E00D927B3 /* Catalog */ = {
+			isa = PBXGroup;
+			children = (
+				1B9824EA2EB13A5E00D927B3 /* CatalogView.swift */,
+				1B9824EB2EB13A5E00D927B3 /* PriceOverrideSheet.swift */,
+			);
+			path = Catalog;
+			sourceTree = "<group>";
+		};
+		1B9824EE2EB13A5E00D927B3 /* Customer */ = {
+			isa = PBXGroup;
+			children = (
+				1B9824ED2EB13A5E00D927B3 /* CustomerView.swift */,
+			);
+			path = Customer;
+			sourceTree = "<group>";
+		};
+		1B9824F12EB13A5E00D927B3 /* Payment */ = {
+			isa = PBXGroup;
+			children = (
+				1B9824EF2EB13A5E00D927B3 /* PaymentView.swift */,
+				1B9824F02EB13A5E00D927B3 /* WaitingForCardView.swift */,
+			);
+			path = Payment;
+			sourceTree = "<group>";
+		};
+		1B9824F32EB13A5E00D927B3 /* Reciept */ = {
+			isa = PBXGroup;
+			children = (
+				1B9824F22EB13A5E00D927B3 /* RecieptView.swift */,
+			);
+			path = Reciept;
+			sourceTree = "<group>";
+		};
+		1B9824F52EB13A5E00D927B3 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				1B9824F42EB13A5E00D927B3 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		1B9824F62EB13A5E00D927B3 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				1B9824E72EB13A5E00D927B3 /* Auth */,
+				1B9824E92EB13A5E00D927B3 /* Cart */,
+				1B9824EC2EB13A5E00D927B3 /* Catalog */,
+				1B9824EE2EB13A5E00D927B3 /* Customer */,
+				1B9824F12EB13A5E00D927B3 /* Payment */,
+				1B9824F32EB13A5E00D927B3 /* Reciept */,
+				1B9824F52EB13A5E00D927B3 /* Settings */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		1B9824FA2EB13A5E00D927B3 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				1B9824F72EB13A5E00D927B3 /* APIClient.swift */,
+				1B9824F82EB13A5E00D927B3 /* LocationsAPI.swift */,
+				1B9824F92EB13A5E00D927B3 /* PaymentsAPI.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		1B9824FD2EB13A5E00D927B3 /* Store */ = {
+			isa = PBXGroup;
+			children = (
+				1B9824FB2EB13A5E00D927B3 /* AppStore.swift */,
+				1B9824FC2EB13A5E00D927B3 /* PaymentViewModel.swift */,
+			);
+			path = Store;
+			sourceTree = "<group>";
+		};
+		1B9825002EB13A5E00D927B3 /* SumUp */ = {
+			isa = PBXGroup;
+			children = (
+				1B9824FF2EB13A5E00D927B3 /* SumUpTypes.swift */,
+			);
+			path = SumUp;
+			sourceTree = "<group>";
+		};
+		1B9825062EB13A5E00D927B3 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				1B9825012EB13A5E00D927B3 /* AppLogger.swift */,
+				1B9825022EB13A5E00D927B3 /* CurrencyFormatter.swift */,
+				1B9825032EB13A5E00D927B3 /* Debounce.swift */,
+				1B9825042EB13A5E00D927B3 /* UUID+Lower.swift */,
+				1B9825052EB13A5E00D927B3 /* Validators.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		1B9825072EB13A5E00D927B3 /* POSApp */ = {
+			isa = PBXGroup;
+			children = (
+				1B9824D92EB13A5E00D927B3 /* App */,
+				1B9824DC2EB13A5E00D927B3 /* Config */,
+				1B9824E52EB13A5E00D927B3 /* Data */,
+				1B9824F62EB13A5E00D927B3 /* Features */,
+				1B9824FA2EB13A5E00D927B3 /* Network */,
+				1B9824FD2EB13A5E00D927B3 /* Store */,
+				1B9825002EB13A5E00D927B3 /* SumUp */,
+				1B9825062EB13A5E00D927B3 /* Utilities */,
+			);
+			path = POSApp;
+			sourceTree = "<group>";
+		};
+		1B9825082EB13A5E00D927B3 /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				1B9825072EB13A5E00D927B3 /* POSApp */,
+			);
+			path = ios;
+			sourceTree = "<group>";
+		};
+		1B982ABE2EB13A5E00D927B3 /* prisma */ = {
+			isa = PBXGroup;
+			children = (
+				1B982ABD2EB13A5E00D927B3 /* schema.prisma */,
+			);
+			path = prisma;
+			sourceTree = "<group>";
+		};
+		1B982AC02EB13A5E00D927B3 /* auth */ = {
+			isa = PBXGroup;
+			children = (
+				1B982ABF2EB13A5E00D927B3 /* deviceAuth.ts */,
+			);
+			path = auth;
+			sourceTree = "<group>";
+		};
+		1B982AC32EB13A5E00D927B3 /* db */ = {
+			isa = PBXGroup;
+			children = (
+				1B982AC12EB13A5E00D927B3 /* client.ts */,
+				1B982AC22EB13A5E00D927B3 /* prisma.schema */,
+			);
+			path = db;
+			sourceTree = "<group>";
+		};
+		1B982AC62EB13A5E00D927B3 /* domain */ = {
+			isa = PBXGroup;
+			children = (
+				1B982AC42EB13A5E00D927B3 /* payments.ts */,
+				1B982AC52EB13A5E00D927B3 /* reconciliation.ts */,
+			);
+			path = domain;
+			sourceTree = "<group>";
+		};
+		1B982AC82EB13A5E00D927B3 /* middleware */ = {
+			isa = PBXGroup;
+			children = (
+				1B982AC72EB13A5E00D927B3 /* error.ts */,
+			);
+			path = middleware;
+			sourceTree = "<group>";
+		};
+		1B982ACE2EB13A5E00D927B3 /* routes */ = {
+			isa = PBXGroup;
+			children = (
+				1B982AC92EB13A5E00D927B3 /* admin.ts */,
+				1B982ACA2EB13A5E00D927B3 /* health.ts */,
+				1B982ACB2EB13A5E00D927B3 /* shopify.ts */,
+				1B982ACC2EB13A5E00D927B3 /* sumup.ts */,
+				1B982ACD2EB13A5E00D927B3 /* webhooks.ts */,
+			);
+			path = routes;
+			sourceTree = "<group>";
+		};
+		1B982AD22EB13A5E00D927B3 /* services */ = {
+			isa = PBXGroup;
+			children = (
+				1B982ACF2EB13A5E00D927B3 /* shopifyAdmin.ts */,
+				1B982AD02EB13A5E00D927B3 /* sumupCloud.ts */,
+				1B982AD12EB13A5E00D927B3 /* sumupSdkProxy.ts */,
+			);
+			path = services;
+			sourceTree = "<group>";
+		};
+		1B982AD52EB13A5E00D927B3 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				1B982AC02EB13A5E00D927B3 /* auth */,
+				1B982AC32EB13A5E00D927B3 /* db */,
+				1B982AC62EB13A5E00D927B3 /* domain */,
+				1B982AC82EB13A5E00D927B3 /* middleware */,
+				1B982ACE2EB13A5E00D927B3 /* routes */,
+				1B982AD22EB13A5E00D927B3 /* services */,
+				1B982AD32EB13A5E00D927B3 /* config.ts */,
+				1B982AD42EB13A5E00D927B3 /* index.ts */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		1B982ADA2EB13A5E00D927B3 /* server */ = {
+			isa = PBXGroup;
+			children = (
+				1B982ABE2EB13A5E00D927B3 /* prisma */,
+				1B982AD52EB13A5E00D927B3 /* src */,
+				1B982AD62EB13A5E00D927B3 /* .env */,
+				1B982AD72EB13A5E00D927B3 /* package.json */,
+				1B982AD82EB13A5E00D927B3 /* package-lock.json */,
+				1B982AD92EB13A5E00D927B3 /* tsconfig.json */,
+			);
+			path = server;
+			sourceTree = "<group>";
+		};
+		1B982ADD2EB13A5E00D927B3 /* pos-suite */ = {
+			isa = PBXGroup;
+			children = (
+				1B9825082EB13A5E00D927B3 /* ios */,
+				1B982ADA2EB13A5E00D927B3 /* server */,
+				1B982ADB2EB13A5E00D927B3 /* .gitignore */,
+				1B982ADC2EB13A5E00D927B3 /* README.md */,
+			);
+			path = "pos-suite";
+			sourceTree = "<group>";
+		};
+		1B982EE52EB13A6A00D927B3 /* components */ = {
+			isa = PBXGroup;
+			children = (
+				1B982EE32EB13A6A00D927B3 /* Forms.tsx */,
+				1B982EE42EB13A6A00D927B3 /* Layout.tsx */,
+			);
+			path = components;
+			sourceTree = "<group>";
+		};
+		1B982EE72EB13A6A00D927B3 /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				1B982EE62EB13A6A00D927B3 /* api.ts */,
+			);
+			path = lib;
+			sourceTree = "<group>";
+		};
+		1B982EEC2EB13A6A00D927B3 /* pages */ = {
+			isa = PBXGroup;
+			children = (
+				1B982EE82EB13A6A00D927B3 /* index.tsx */,
+				1B982EE92EB13A6A00D927B3 /* locations.tsx */,
+				1B982EEA2EB13A6A00D927B3 /* terminals.tsx */,
+				1B982EEB2EB13A6A00D927B3 /* users.tsx */,
+			);
+			path = pages;
+			sourceTree = "<group>";
+		};
+		1B982EED2EB13A6A00D927B3 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				1B982EE52EB13A6A00D927B3 /* components */,
+				1B982EE72EB13A6A00D927B3 /* lib */,
+				1B982EEC2EB13A6A00D927B3 /* pages */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		1B982EF22EB13A6A00D927B3 /* admin */ = {
+			isa = PBXGroup;
+			children = (
+				1B982EED2EB13A6A00D927B3 /* src */,
+				1B982EEE2EB13A6A00D927B3 /* .env.local */,
+				1B982EF02EB13A6A00D927B3 /* next.config.js */,
+				1B982EF12EB13A6A00D927B3 /* package.json */,
+			);
+			path = admin;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1B9824AA2EB13A4800D927B3 /* SUMUPPOSAPP */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1B9824CE2EB13A4A00D927B3 /* Build configuration list for PBXNativeTarget "SUMUPPOSAPP" */;
+			buildPhases = (
+				1B9824A72EB13A4800D927B3 /* Sources */,
+				1B9824A82EB13A4800D927B3 /* Frameworks */,
+				1B9824A92EB13A4800D927B3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SUMUPPOSAPP;
+			packageProductDependencies = (
+			);
+			productName = SUMUPPOSAPP;
+			productReference = 1B9824AB2EB13A4800D927B3 /* SUMUPPOSAPP.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1B9824A32EB13A4800D927B3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
+				TargetAttributes = {
+					1B9824AA2EB13A4800D927B3 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+				};
+			};
+			buildConfigurationList = 1B9824A62EB13A4800D927B3 /* Build configuration list for PBXProject "SUMUPPOSAPP" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 1B9824A22EB13A4800D927B3;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 1B9824AC2EB13A4800D927B3 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1B9824AA2EB13A4800D927B3 /* SUMUPPOSAPP */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1B9824A92EB13A4800D927B3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1B982EF92EB1465000D927B3 /* Secrets.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1B9824A72EB13A4800D927B3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1B982EC42EB13A5E00D927B3 /* CartView.swift in Sources */,
+				1B982EC52EB13A5E00D927B3 /* CartItem.swift in Sources */,
+				1B982EC62EB13A5E00D927B3 /* SecretsLoader.swift in Sources */,
+				1B982EC72EB13A5E00D927B3 /* SettingsView.swift in Sources */,
+				1B982EC82EB13A5E00D927B3 /* AppLogger.swift in Sources */,
+				1B982EC92EB13A5E00D927B3 /* CustomerView.swift in Sources */,
+				1B982ECA2EB13A5E00D927B3 /* AppStore.swift in Sources */,
+				1B982ECB2EB13A5E00D927B3 /* UUID+Lower.swift in Sources */,
+				1B982ECC2EB13A5E00D927B3 /* WaitingForCardView.swift in Sources */,
+				1B982ECE2EB13A5E00D927B3 /* Validators.swift in Sources */,
+				1B982ECF2EB13A5E00D927B3 /* APIClient.swift in Sources */,
+				1B982ED02EB13A5E00D927B3 /* RecieptView.swift in Sources */,
+				1B982ED12EB13A5E00D927B3 /* PaymentViewModel.swift in Sources */,
+				1B982ED22EB13A5E00D927B3 /* Debounce.swift in Sources */,
+				1B982ED32EB13A5E00D927B3 /* Customer.swift in Sources */,
+				1B982ED42EB13A5E00D927B3 /* PaymentAttemptDT0.swift in Sources */,
+				1B982ED52EB13A5E00D927B3 /* TerminalRef.swift in Sources */,
+				1B982ED62EB13A5E00D927B3 /* POSApp.swift in Sources */,
+				1B982ED72EB13A5E00D927B3 /* CatalogView.swift in Sources */,
+				1B982ED82EB13A5E00D927B3 /* PaymentsAPI.swift in Sources */,
+				1B982ED92EB13A5E00D927B3 /* PriceOverrideSheet.swift in Sources */,
+				1B982EDA2EB13A5E00D927B3 /* LocationsAPI.swift in Sources */,
+				1B982EDC2EB13A5E00D927B3 /* Product.swift in Sources */,
+				1B982EDD2EB13A5E00D927B3 /* CatalogRepository.swift in Sources */,
+				1B982EDE2EB13A5E00D927B3 /* SumUpTypes.swift in Sources */,
+				1B982EDF2EB13A5E00D927B3 /* AuthView.swift in Sources */,
+				1B982EE02EB13A5E00D927B3 /* CurrencyFormatter.swift in Sources */,
+				1B982EE12EB13A5E00D927B3 /* PaymentView.swift in Sources */,
+				1B982EE22EB13A5E00D927B3 /* AppRouter.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1B9824CC2EB13A4A00D927B3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = ZRJ3BBP8N7;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		1B9824CD2EB13A4A00D927B3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = ZRJ3BBP8N7;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		1B9824CF2EB13A4A00D927B3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ZRJ3BBP8N7;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/pos-suite/server/node_modules/prisma",
+					"$(PROJECT_DIR)/pos-suite/server/node_modules/@prisma/engines",
+					"$(PROJECT_DIR)/pos-suite/server/node_modules/.prisma/client",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = no.miljit.SUMUPPOSAPP;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1B9824D02EB13A4A00D927B3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ZRJ3BBP8N7;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/pos-suite/server/node_modules/prisma",
+					"$(PROJECT_DIR)/pos-suite/server/node_modules/@prisma/engines",
+					"$(PROJECT_DIR)/pos-suite/server/node_modules/.prisma/client",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = no.miljit.SUMUPPOSAPP;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1B9824A62EB13A4800D927B3 /* Build configuration list for PBXProject "SUMUPPOSAPP" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1B9824CC2EB13A4A00D927B3 /* Debug */,
+				1B9824CD2EB13A4A00D927B3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1B9824CE2EB13A4A00D927B3 /* Build configuration list for PBXNativeTarget "SUMUPPOSAPP" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1B9824CF2EB13A4A00D927B3 /* Debug */,
+				1B9824D02EB13A4A00D927B3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 1B9824A32EB13A4800D927B3 /* Project object */;
+}

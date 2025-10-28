@@ -1,0 +1,19 @@
+//
+//  .gitignore
+//  POS-app-shopify
+//
+//  Created by Jakob Buhs on 27/10/2025.
+//
+
+# iOS
+ios/POSApp/Config/Secrets.plist
+ios/POSApp/Data/LocalDB.sqlite
+
+# Node/Next
+server/.env
+admin/.env.local
+
+# General
+.DS_Store
+node_modules
+dist

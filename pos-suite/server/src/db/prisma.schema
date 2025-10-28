@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"           // change to "postgresql" in prod
+  url      = env("DATABASE_URL")
+}
+
+model PaymentAttempt {
+  id                  String   @id @default(cuid())
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Your identifiers
+  orderRef            String           // your POS order/cart id (foreign_transaction_id)
+  clientTransactionId String?          // SumUp client_transaction_id from checkout start
+  transactionId       String?          // SumUp final transaction id from webhook
+  readerId            String
+  amountMinor         Int
+  currency            String
+
+  status              PaymentStatus    @default(PENDING) // PENDING|APPROVED|DECLINED|CANCELLED|ERROR|TIMEOUT
+  message             String?          // decline reason, etc.
+
+  // Card metadata (safe)
+  scheme              String?
+  last4               String?
+  approvalCode        String?
+
+  // Shopify mirror (set after success)
+  shopifyOrderId      String?
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  DECLINED
+  CANCELLED
+  ERROR
+  TIMEOUT
+}
+

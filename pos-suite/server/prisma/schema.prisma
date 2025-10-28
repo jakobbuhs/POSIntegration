@@ -1,0 +1,72 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Records one terminal payment attempt and its lifecycle.
+/// Stores safe card metadata only (no PAN/CVV).
+model PaymentAttempt {
+  id                  String         @id @default(uuid())
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  /// Your POS-side idempotency key (e.g., cart/order UUID). One attempt per orderRef.
+  orderRef            String         @unique
+
+  /// From SumUp "Create Reader Checkout" response (if provided)
+  clientTransactionId String?        @db.VarChar(128)
+
+  /// SumUp final transaction id (on approval)
+  transactionId       String?        @db.VarChar(128)
+
+  /// Reader we targeted (SumUp reader id)
+  readerId            String         @db.VarChar(128)
+
+  amountMinor         Int
+  currency            String         @db.VarChar(12)
+
+  status              PaymentStatus  @default(PENDING)
+  message             String?        @db.Text
+
+  // Card metadata (safe to store)
+  scheme              String?        @db.VarChar(32)
+  last4               String?        @db.VarChar(4)
+  approvalCode        String?        @db.VarChar(32)
+
+  // Shopify mirror
+  shopifyOrderId      String?        @db.VarChar(128)
+
+  // Optional: keep the snapshot needed to build Shopify order on webhook/poll path
+  cartJson            Json?
+  customerJson        Json?
+
+  @@index([clientTransactionId])
+  @@index([readerId])
+  @@index([status, createdAt])
+}
+
+/// Optional: keep raw webhook/poll audit for troubleshooting
+model PaymentEvent {
+  id            String   @id @default(uuid())
+  createdAt     DateTime @default(now())
+  orderRef      String
+  source        String   @db.VarChar(32) // "webhook" | "poll"
+  eventType     String   @db.VarChar(64)
+  payload       Json
+
+  @@index([orderRef, createdAt])
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  DECLINED
+  CANCELLED
+  ERROR
+  TIMEOUT
+}
