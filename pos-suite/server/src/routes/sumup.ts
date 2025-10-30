@@ -5,9 +5,11 @@ import { cfg } from "../config";
 import {
   createReaderCheckout,
   getCheckoutStatusByClientId,
+  findTransactionByForeignId,
   mapSumUpStatus
 } from "../services/sumupCloud";
 import { createOrderInShopify } from "../services/shopifyAdmin";
+import { maybeSendTerminalConfirmation } from "../services/terminalWebhook";
 
 const r = Router();
 
@@ -111,6 +113,18 @@ r.get("/status", async (req, res, next) => {
               } catch (e) {
                 console.error("Shopify orderCreate (poll path) failed", e);
               }
+            }
+
+            try {
+              const result = await maybeSendTerminalConfirmation(attempt, {
+                source: "status-poll",
+                sumupTx: tx as any
+              });
+              if (result.sent) {
+                attempt = result.attempt;
+              }
+            } catch (e) {
+              console.error("Terminal confirmation webhook (poll path) failed", e);
             }
           }
         }

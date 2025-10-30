@@ -20,6 +20,11 @@ export const cfg = {
     token: process.env.SHOPIFY_ADMIN_TOKEN!,
     version: process.env.SHOPIFY_API_VERSION!
   },
+  webhooks: {
+    terminalConfirmationUrl:
+      process.env.TERMINAL_CONFIRMATION_WEBHOOK_URL ||
+      "https://api.jbuhs.no/api/sumup/webhook/wtlK7QZFzwebLMNEI-CLw7XJhtNQyn8VaSEwKzdhpOE"
+  },
   jwtSecret: process.env.DEVICE_JWT_SECRET!,
   features: {
     useWebhooks: !!process.env.USE_WEBHOOKS

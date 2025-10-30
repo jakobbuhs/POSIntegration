@@ -9,6 +9,7 @@ import { Router } from "express";
 import crypto from "crypto";
 import { prisma } from "../db/client";
 import { createOrderInShopify } from "../services/shopifyAdmin";
+import { maybeSendTerminalConfirmation } from "../services/terminalWebhook";
 
 const r = Router();
 
@@ -43,7 +44,7 @@ r.post("/sumup", expressRawJson, async (req, res) => {
   const mapped = statusMap[(data.status || "").toUpperCase()] || "ERROR";
 
   // Upsert the attempt
-  const attempt = await prisma.paymentAttempt.upsert({
+  let attempt = await prisma.paymentAttempt.upsert({
     where: { orderRef: foreignId },
     update: {
       status: mapped,
@@ -85,7 +86,7 @@ r.post("/sumup", expressRawJson, async (req, res) => {
         scheme: attempt.scheme || undefined,
         last4: attempt.last4 || undefined,
       });
-      await prisma.paymentAttempt.update({
+      attempt = await prisma.paymentAttempt.update({
         where: { id: attempt.id },
         data: { shopifyOrderId: order.id }
       });
@@ -93,6 +94,18 @@ r.post("/sumup", expressRawJson, async (req, res) => {
       // keep webhook success, the POS can retry order creation with /recover later
       console.error("Shopify order create failed:", e);
     }
+  }
+
+  try {
+    const result = await maybeSendTerminalConfirmation(attempt, {
+      source: "sumup-webhook",
+      sumupTx: data
+    });
+    if (result.sent) {
+      attempt = result.attempt;
+    }
+  } catch (e) {
+    console.error("Terminal confirmation webhook (sumup webhook) failed", e);
   }
 
   return res.json({ ok: true });
