@@ -7,13 +7,13 @@
 
 import Foundation
 
-enum CurrencyFormatter {
-  static func nok(minor: Int) -> String {
-    let n = NSNumber(value: Double(minor) / 100.0)
-    let f = NumberFormatter()
-    f.numberStyle = .currency
-    f.currencyCode = "NOK"
-    f.maximumFractionDigits = 2
-    return f.string(from: n) ?? "NOK \(Double(minor)/100)"
-  }
+struct CurrencyFormatter {
+    static func nok(minor: Int) -> String {
+        let major = Double(minor) / 100.0
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "NOK"
+        formatter.locale = Locale(identifier: "nb_NO")
+        return formatter.string(from: NSNumber(value: major)) ?? "kr 0.00"
+    }
 }
