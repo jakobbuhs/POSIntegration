@@ -13,44 +13,129 @@ struct CartView: View {
   var next: () -> Void
 
   var body: some View {
-    VStack {
-      List {
-        ForEach(store.cart) { item in
-          if let p = store.products.first(where: { $0.id == item.productId }) {
-            HStack {
-              VStack(alignment: .leading, spacing: 6) {
-                Text(p.title).font(.headline)
-                if let o = item.overrideMinor {
-                  HStack(spacing: 8) {
-                    Text(CurrencyFormatter.nok(minor: p.priceMinor)).strikethrough().foregroundColor(.secondary)
-                    Text(CurrencyFormatter.nok(minor: o)).foregroundColor(.blue)
-                  }
-                } else {
-                  Text(CurrencyFormatter.nok(minor: p.priceMinor)).foregroundColor(.secondary)
+    BottomCTA {
+      VStack(alignment: .leading, spacing: DesignSystem.Spacing.l) {
+        Text("Cart")
+          .font(.largeTitle.bold())
+
+        if store.cart.isEmpty {
+          VStack(spacing: DesignSystem.Spacing.s) {
+            Image(systemName: "cart")
+              .font(.largeTitle)
+              .foregroundStyle(.secondary)
+            Text("Your cart is empty")
+              .font(.title2.weight(.semibold))
+            Text("Add items from the catalog to get started.")
+              .font(.body)
+              .foregroundStyle(.secondary)
+          }
+          .frame(maxWidth: .infinity)
+          .padding(DesignSystem.Spacing.l)
+        } else {
+          ScrollView {
+            LazyVStack(spacing: DesignSystem.Spacing.m) {
+              ForEach(store.cart) { item in
+                if let product = store.products.first(where: { $0.id == item.productId }) {
+                  CartItemCard(
+                    product: product,
+                    item: item,
+                    quantity: Binding(
+                      get: { item.qty },
+                      set: { newValue in
+                        if let index = store.cart.firstIndex(where: { $0.id == item.id }) {
+                          store.cart[index].qty = max(1, newValue)
+                        }
+                      }
+                    ),
+                    onRemove: { store.remove(item: item) }
+                  )
                 }
               }
-              Spacer()
-              Stepper(value: Binding(get: { item.qty },
-                                     set: { newValue in
-                                       if let idx = store.cart.firstIndex(where: { $0.id == item.id }) {
-                                         store.cart[idx].qty = max(1, newValue)
-                                       }
-                                     }), in: 1...99) { Text("Qty \(item.qty)") }
-              Button(role: .destructive) { store.remove(item: item) } label: { Image(systemName: "trash") }
             }
+            .padding(.bottom, DesignSystem.Spacing.l)
+          }
+
+          VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+            Text("Total")
+              .font(.body)
+              .foregroundStyle(.secondary)
+            Text(CurrencyFormatter.nok(minor: store.amountMinor))
+              .font(.title2.weight(.semibold))
           }
         }
       }
-
-      HStack {
-        Text("Total: \(CurrencyFormatter.nok(minor: store.amountMinor))")
-          .font(.title3).bold()
-        Spacer()
-        Button("Back") { prev() }
-        Button("Next") { next() }.buttonStyle(.borderedProminent).disabled(store.cart.isEmpty)
+      .padding(.horizontal, DesignSystem.Sizing.horizontalPadding)
+      .padding(.top, DesignSystem.Spacing.l)
+    } actions: {
+      if !store.cart.isEmpty {
+        Button("Review customer details") {
+          next()
+        }
+        .buttonStyle(PrimaryButtonStyle())
+        .accessibilityLabel("Review customer details")
+        .accessibilityHint("Continue to add customer information before taking payment.")
       }
-      .padding()
+
+      Button("Back to catalog") {
+        prev()
+      }
+      .buttonStyle(SecondaryButtonStyle())
+      .accessibilityLabel("Back to catalog")
+      .accessibilityHint("Returns to the product catalog to add more items.")
     }
     .navigationTitle("Cart")
+  }
+}
+
+private struct CartItemCard: View {
+  let product: Product
+  let item: CartItem
+  var quantity: Binding<Int>
+  var onRemove: () -> Void
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
+      VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+        Text(product.title)
+          .font(.title3.weight(.semibold))
+          .multilineTextAlignment(.leading)
+
+        if let overrideMinor = item.overrideMinor {
+          HStack(spacing: DesignSystem.Spacing.s) {
+            Text(CurrencyFormatter.nok(minor: product.priceMinor))
+              .font(.body)
+              .foregroundStyle(.secondary)
+              .strikethrough()
+            Text(CurrencyFormatter.nok(minor: overrideMinor))
+              .font(.body.weight(.semibold))
+              .foregroundStyle(.tint)
+          }
+        } else {
+          Text(CurrencyFormatter.nok(minor: product.priceMinor))
+            .font(.body)
+            .foregroundStyle(.secondary)
+        }
+      }
+
+      Stepper(value: quantity, in: 1...99) {
+        Text("Quantity: \(quantity.wrappedValue)")
+          .font(.body)
+      }
+      .controlSize(.large)
+
+      Button("Remove") {
+        onRemove()
+      }
+      .buttonStyle(SecondaryButtonStyle())
+      .accessibilityLabel("Remove \(product.title) from cart")
+      .accessibilityHint("Removes the item and its quantity from the order.")
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .padding(DesignSystem.Spacing.m)
+    .background(
+      RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.standard, style: .continuous)
+        .fill(Color(uiColor: .secondarySystemBackground))
+    )
+    .accessibilityElement(children: .contain)
   }
 }
