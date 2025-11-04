@@ -2,7 +2,7 @@ import fetch, { Response } from "node-fetch";
 import type { PaymentAttempt } from "@prisma/client";
 import { cfg } from "../config";
 import { prisma } from "../db/client";
-import { findTransactionByForeignId, mapSumUpStatus, SumUpTransaction } from "./sumupCloud";
+import { findTransactionByForeignId, mapSumUpStatus } from "./sumupCloud";
 
 const FINAL_STATUSES = new Set<PaymentAttempt["status"]>([
   "APPROVED",
@@ -12,62 +12,40 @@ const FINAL_STATUSES = new Set<PaymentAttempt["status"]>([
   "TIMEOUT"
 ]);
 
+type SumUpTransaction = {
+  transaction_id?: string;
+  id?: string;
+  status?: string;
+  amount?: { currency?: string; value?: number };
+  foreign_transaction_id?: string;
+  foreignId?: string;
+  metadata?: Record<string, unknown>;
+  [key: string]: unknown;
+};
+
 type NotifyOptions = {
   source?: string;
   sumupTx?: SumUpTransaction | null;
 };
 
-export type TerminalVerificationResult =
-  | {
-      confirmed: true;
-      source: "provided" | "sumup-api";
-      status: PaymentAttempt["status"] | null;
-      matchesOrderRef: boolean;
-      transactionId: string | null;
-      amount: { currency: string | null; value: number | null };
-    }
-  | {
-      confirmed: false;
-      source: "provided" | "sumup-api";
-      error: string;
-    };
-
-type NotificationResult =
-  | { sent: true; attempt: PaymentAttempt; verification: TerminalVerificationResult }
-  | {
-      sent: false;
-      reason:
-        | "missing-url"
-        | "non-final-status"
-        | "already-notified"
-        | "verification-failed";
-      verification?: TerminalVerificationResult;
-    };
-
-export type TerminalConfirmationResult = NotificationResult;
-
 export async function maybeSendTerminalConfirmation(
   attempt: PaymentAttempt,
   options: NotifyOptions = {}
-): Promise<TerminalConfirmationResult> {
+) {
   const url = cfg.webhooks.terminalConfirmationUrl?.trim();
   if (!url) {
-    return { sent: false, reason: "missing-url" };
+    return { sent: false, reason: "missing-url" } as const;
   }
 
   if (!FINAL_STATUSES.has(attempt.status)) {
-    return { sent: false, reason: "non-final-status" };
+    return { sent: false, reason: "non-final-status" } as const;
   }
 
   if (attempt.terminalWebhookNotifiedAt) {
-    return { sent: false, reason: "already-notified" };
+    return { sent: false, reason: "already-notified" } as const;
   }
 
   const verification = await buildVerification(attempt, options.sumupTx);
-
-  if (!verification.confirmed) {
-    return { sent: false, reason: "verification-failed", verification };
-  }
 
   const payload = {
     attemptId: attempt.id,
@@ -104,13 +82,13 @@ export async function maybeSendTerminalConfirmation(
     data: { terminalWebhookNotifiedAt: new Date() }
   });
 
-  return { sent: true, attempt: notified, verification };
+  return { sent: true, attempt: notified } as const;
 }
 
 async function buildVerification(
   attempt: PaymentAttempt,
   provided?: SumUpTransaction | null
-): Promise<TerminalVerificationResult> {
+) {
   let tx: SumUpTransaction | null | undefined = provided ?? null;
   let source: "provided" | "sumup-api" = provided ? "provided" : "sumup-api";
   let error: string | null = null;
@@ -129,7 +107,7 @@ async function buildVerification(
       confirmed: false,
       source,
       error: error ?? "not-found"
-    };
+    } as const;
   }
 
   const status = tx.status ? mapSumUpStatus(tx.status) : null;
@@ -148,7 +126,7 @@ async function buildVerification(
       currency: tx.amount?.currency ?? null,
       value: tx.amount?.value ?? null
     }
-  };
+  } as const;
 }
 
 async function safeRead(res: Response) {
