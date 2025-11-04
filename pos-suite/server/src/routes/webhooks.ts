@@ -10,8 +10,6 @@ import crypto from "crypto";
 import { prisma } from "../db/client";
 import { createOrderInShopify } from "../services/shopifyAdmin";
 import { maybeSendTerminalConfirmation } from "../services/terminalWebhook";
-import { findTransactionByClientId, mapSumUpStatus } from "../services/sumupCloud";
-import type { SumUpTransaction } from "../services/sumupCloud";
 
 const r = Router();
 
@@ -19,20 +17,8 @@ const r = Router();
 function verifySignature(raw: string, signature: string, secret: string) {
   if (!signature || !secret) return false;
   const expected = crypto.createHmac("sha256", secret).update(raw).digest("hex");
-  const expectedBuf = Buffer.from(expected, "hex");
-  const hexCandidate = /^[0-9a-f]+$/i.test(signature)
-    ? Buffer.from(signature, "hex")
-    : null;
-  const base64Candidate = /^[0-9A-Za-z+/=]+$/.test(signature)
-    ? Buffer.from(signature, "base64")
-    : null;
-  const actual =
-    hexCandidate && hexCandidate.length === expectedBuf.length
-      ? hexCandidate
-      : base64Candidate;
-  if (!actual || actual.length !== expectedBuf.length) {
-    return false;
-  }
+  const actual = Buffer.from(signature);
+  const expectedBuf = Buffer.from(expected);
   if (actual.length !== expectedBuf.length) {
     return false;
   }
@@ -63,31 +49,41 @@ r.post("/sumup", expressRawJson, async (req, res) => {
     ((evt.status as string | undefined) || "").trim();
   const mapped = mapSumUpStatus(statusRaw || undefined);
 
-  let attempt = clientTxnId
-    ? await prisma.paymentAttempt.findFirst({ where: { clientTransactionId: clientTxnId } })
-    : null;
+  const data = (evt.data || {}) as SumUpTransaction;
+  const foreignId = data.foreign_transaction_id || data.foreignId || ""; // your orderRef
+  const statusMap: Record<string, "APPROVED"|"DECLINED"|"CANCELLED"|"ERROR"> = {
+    "SUCCESSFUL": "APPROVED", "APPROVED": "APPROVED",
+    "DECLINED": "DECLINED", "FAILED": "ERROR", "CANCELLED": "CANCELLED"
+  };
+  const mapped = statusMap[(data.status || "").toUpperCase()] || "ERROR";
 
-  if (!attempt && payload.transaction_id) {
-    attempt = await prisma.paymentAttempt.findFirst({ where: { transactionId: payload.transaction_id } });
-  }
-
-  let hydratedTx: SumUpTransaction = { ...payload };
-
-  if (!attempt && clientTxnId) {
-    try {
-      const lookedUp = await findTransactionByClientId(clientTxnId);
-      if (lookedUp) {
-        hydratedTx = { ...lookedUp, ...payload };
-        const foreignId =
-          lookedUp.foreign_transaction_id ||
-          (lookedUp as any).foreignId ||
-          lookedUp.metadata?.foreign_transaction_id;
-        if (foreignId) {
-          attempt = await prisma.paymentAttempt.findUnique({ where: { orderRef: foreignId } });
-        }
-      }
-    } catch (lookupErr) {
-      console.warn("SumUp transaction lookup from webhook failed", lookupErr);
+  // Upsert the attempt
+  let attempt = await prisma.paymentAttempt.upsert({
+    where: { orderRef: foreignId },
+    update: {
+      status: mapped,
+      transactionId: data.transaction_id || null,
+      clientTransactionId: data.client_transaction_id || null,
+      amountMinor: data.amount?.value ?? undefined,
+      currency: data.amount?.currency ?? undefined,
+      readerId: data.reader_id || undefined,
+      scheme: data.scheme || undefined,
+      last4: data.last4 || undefined,
+      approvalCode: (data as any).approval_code || undefined,
+      message: (data as any).message || null,
+    },
+    create: {
+      orderRef: foreignId,
+      readerId: data.reader_id || "unknown",
+      amountMinor: data.amount?.value ?? 0,
+      currency: data.amount?.currency ?? "NOK",
+      status: mapped,
+      transactionId: data.transaction_id || null,
+      clientTransactionId: data.client_transaction_id || null,
+      scheme: data.scheme || undefined,
+      last4: data.last4 || undefined,
+      approvalCode: (data as any).approval_code || undefined,
+      message: (data as any).message || null,
     }
   }
 
@@ -146,12 +142,10 @@ r.post("/sumup", expressRawJson, async (req, res) => {
         scheme: attempt.scheme || undefined,
         last4: attempt.last4 || undefined,
       });
-      if (order?.id) {
-        attempt = await prisma.paymentAttempt.update({
-          where: { id: attempt.id },
-          data: { shopifyOrderId: order.id }
-        });
-      }
+      attempt = await prisma.paymentAttempt.update({
+        where: { id: attempt.id },
+        data: { shopifyOrderId: order.id }
+      });
     } catch (e) {
       // keep webhook success, the POS can retry order creation with /recover later
       console.error("Shopify order create failed:", e);
@@ -161,16 +155,10 @@ r.post("/sumup", expressRawJson, async (req, res) => {
   try {
     const result = await maybeSendTerminalConfirmation(attempt, {
       source: "sumup-webhook",
-      sumupTx: hydratedTx
+      sumupTx: data
     });
     if (result.sent) {
       attempt = result.attempt;
-    } else if (result.reason !== "already-notified") {
-      console.info("Skipped terminal confirmation", {
-        orderRef: attempt.orderRef,
-        reason: result.reason,
-        verification: result.verification
-      });
     }
   } catch (e) {
     console.error("Terminal confirmation webhook (sumup webhook) failed", e);

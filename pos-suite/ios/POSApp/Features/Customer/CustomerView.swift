@@ -14,32 +14,58 @@ struct CustomerView: View {
   @State private var error: String?
 
   var body: some View {
-    Form {
-      Section("Customer") {
-        TextField("First name", text: $store.customer.firstName)
-        TextField("Email", text: $store.customer.email).keyboardType(.emailAddress)
-        TextField("Phone", text: $store.customer.phone).keyboardType(.phonePad)
-        if let e = error { Text(e).foregroundColor(.red) }
+    BottomCTA {
+      Form {
+        Section("Customer") {
+          TextField("First name", text: $store.customer.firstName)
+            .textContentType(.givenName)
+          TextField("Email", text: $store.customer.email)
+            .keyboardType(.emailAddress)
+            .textContentType(.emailAddress)
+          TextField("Phone", text: $store.customer.phone)
+            .keyboardType(.phonePad)
+            .textContentType(.telephoneNumber)
+          if let errorMessage = error {
+            Text(errorMessage)
+              .font(.body)
+              .foregroundStyle(.red)
+          }
+        }
       }
+    } actions: {
+      Button("Continue to payment") {
+        guard validate() else { return }
+        next()
+      }
+      .buttonStyle(PrimaryButtonStyle())
+      .disabled(store.cart.isEmpty)
+      .accessibilityLabel("Continue to payment")
+      .accessibilityHint("Opens the payment screen when all customer details are valid.")
+
+      Button("Back to cart") {
+        prev()
+      }
+      .buttonStyle(SecondaryButtonStyle())
+      .accessibilityLabel("Back to cart")
+      .accessibilityHint("Returns to the cart without saving changes.")
     }
     .navigationTitle("Customer")
-    .toolbar {
-      ToolbarItem(placement: .cancellationAction) { Button("Back") { prev() } }
-      ToolbarItem(placement: .confirmationAction) {
-        Button("Next") {
-          if store.customer.firstName.isEmpty {
-            error = "First name required"; return
-          }
-          if !Validators.email(store.customer.email) {
-            error = "Email invalid"; return
-          }
-          if !Validators.phone(store.customer.phone) {
-            error = "Phone invalid"; return
-          }
-          error = nil
-          next()
-        }.disabled(store.cart.isEmpty)
-      }
+  }
+
+  private func validate() -> Bool {
+    if store.customer.firstName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+      error = "First name required"
+      return false
     }
+    if !Validators.email(store.customer.email) {
+      error = "Email invalid"
+      return false
+    }
+    if !Validators.phone(store.customer.phone) {
+      error = "Phone invalid"
+      return false
+    }
+    error = nil
+    return true
   }
 }

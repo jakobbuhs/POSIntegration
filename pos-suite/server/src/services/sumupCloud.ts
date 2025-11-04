@@ -1,4 +1,5 @@
 // server/src/services/sumupCloud.ts
+import fetch from "node-fetch";
 import type { PaymentStatus } from "@prisma/client";
 import { cfg } from "../config";
 import { fetchWithTimeout, HttpTimeoutError, Response } from "./http";
@@ -8,7 +9,6 @@ export type SumUpTransaction = {
   id?: string;
   status?: string;
   amount?: { currency?: string; value?: number };
-  currency?: string;
   foreign_transaction_id?: string;
   foreignId?: string;
   metadata?: Record<string, unknown>;
@@ -18,7 +18,32 @@ export type SumUpTransaction = {
   message?: string;
   reader_id?: string;
   client_transaction_id?: string;
-  merchant_code?: string;
+  [key: string]: unknown;
+};
+
+type SumUpCheckoutStartResponse = {
+  client_transaction_id?: string;
+  [key: string]: unknown;
+};
+
+type SumUpTransactionList = {
+  items?: SumUpTransaction[];
+};
+
+export type SumUpTransaction = {
+  transaction_id?: string;
+  id?: string;
+  status?: string;
+  amount?: { currency?: string; value?: number };
+  foreign_transaction_id?: string;
+  foreignId?: string;
+  metadata?: Record<string, unknown>;
+  scheme?: string;
+  last4?: string;
+  approval_code?: string;
+  message?: string;
+  reader_id?: string;
+  client_transaction_id?: string;
   [key: string]: unknown;
 };
 
@@ -56,8 +81,7 @@ export async function createReaderCheckout(args: {
           key: args.affiliateKey,
           foreign_transaction_id: args.foreignId
         },
-        description: args.description || "POS checkout",
-        return_url: cfg.sumup.returnUrl
+        description: args.description || "POS checkout"
       })
     }, 15000);
   } catch (err) {
@@ -96,7 +120,7 @@ export async function terminateReaderCheckout(readerId: string) {
 export async function getCheckoutStatusByClientId(clientTxnId: string): Promise<SumUpTransactionList> {
   // Some tenants allow filtering by client_transaction_id; if not, you can narrow by date/limit and filter locally.
   const url =
-    `${cfg.sumup.base}/v2.1/merchants/${cfg.sumup.merchantCode}/transactions?client_transaction_id=${encodeURIComponent(
+    `${cfg.sumup.base}/v0.1/merchants/${cfg.sumup.merchantCode}/transactions?client_transaction_id=${encodeURIComponent(
       clientTxnId
     )}`;
   let res: Response;
@@ -112,18 +136,8 @@ export async function getCheckoutStatusByClientId(clientTxnId: string): Promise<
     }
     throw err;
   }
-  if (res.status === 404) {
-    return { items: [] };
-  }
   if (!res.ok) throw new Error(`Status fetch failed ${res.status} ${await res.text()}`);
   return res.json() as Promise<SumUpTransactionList>; // { items: [...] }
-}
-
-export async function findTransactionByClientId(clientTxnId: string | null | undefined) {
-  if (!clientTxnId) return null;
-  const list = await getCheckoutStatusByClientId(clientTxnId);
-  const items = Array.isArray(list.items) ? list.items : [];
-  return items[0] ?? null;
 }
 
 export function mapSumUpStatus(s: string | undefined): PaymentStatus {
@@ -138,7 +152,7 @@ export function mapSumUpStatus(s: string | undefined): PaymentStatus {
 // Get recent transactions and filter locally by foreign_transaction_id (your orderRef)
 export async function findTransactionByForeignId(foreignId: string): Promise<SumUpTransaction | null> {
   // Pull recent txs; adjust limit or add date filters if needed
-  const url = `${cfg.sumup.base}/v2.1/merchants/${cfg.sumup.merchantCode}/transactions?limit=50`;
+  const url = `${cfg.sumup.base}/v0.1/merchants/${cfg.sumup.merchantCode}/transactions?limit=50`;
   let res: Response;
   try {
     res = await fetchWithTimeout(
@@ -151,9 +165,6 @@ export async function findTransactionByForeignId(foreignId: string): Promise<Sum
       throw new Error(`Transaction lookup timed out after ${err.timeoutMs}ms`);
     }
     throw err;
-  }
-  if (res.status === 404) {
-    return null;
   }
   if (!res.ok) throw new Error(`Tx list failed ${res.status} ${await res.text()}`);
   const j = (await res.json()) as SumUpTransactionList; // { items: [...] }

@@ -4,7 +4,6 @@ import { cfg } from "./config";
 import health from "./routes/health";
 import sumup from "./routes/sumup";
 import webhooks from "./routes/webhooks";
-import { errorHandler } from "./middleware/error";
 
 const app = express();
 app.use(cors());
@@ -15,8 +14,6 @@ app.use("/payments", sumup);
 if (cfg.features.useWebhooks) {
   app.use("/webhooks", webhooks);
 }
-
-app.use(errorHandler);
 
 const PORT = process.env.PORT || 4000;
 app.listen(Number(PORT), "0.0.0.0", () => {
