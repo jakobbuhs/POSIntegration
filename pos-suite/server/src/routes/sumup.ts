@@ -65,12 +65,12 @@ r.get("/status", async (req, res, next) => {
 
     if (needsRefresh) {
       try {
-        let tx: any = null;
+        let tx: SumUpTransaction | null = null;
 
         if (attempt.clientTransactionId) {
           // your earlier code path using client_transaction_id (keep it)
           const j = await getCheckoutStatusByClientId(attempt.clientTransactionId);
-          tx = (j.items && j.items[0]) || null;
+          tx = j.items?.[0] ?? null;
         }
 
         // Fallback when client_transaction_id is null or didn’t return anything yet
@@ -106,10 +106,12 @@ r.get("/status", async (req, res, next) => {
                   scheme: attempt.scheme || undefined,
                   last4: attempt.last4 || undefined
                 });
-                attempt = await prisma.paymentAttempt.update({
-                  where: { orderRef },
-                  data: { shopifyOrderId: order.id }
-                });
+                if (order?.id) {
+                  attempt = await prisma.paymentAttempt.update({
+                    where: { orderRef },
+                    data: { shopifyOrderId: order.id }
+                  });
+                }
               } catch (e) {
                 console.error("Shopify orderCreate (poll path) failed", e);
               }
