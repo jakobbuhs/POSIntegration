@@ -6,8 +6,7 @@ import {
   createReaderCheckout,
   getCheckoutStatusByClientId,
   findTransactionByForeignId,
-  mapSumUpStatus,
-  SumUpTransaction
+  mapSumUpStatus
 } from "../services/sumupCloud";
 import { createOrderInShopify } from "../services/shopifyAdmin";
 import { maybeSendTerminalConfirmation } from "../services/terminalWebhook";

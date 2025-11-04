@@ -10,7 +10,6 @@ import crypto from "crypto";
 import { prisma } from "../db/client";
 import { createOrderInShopify } from "../services/shopifyAdmin";
 import { maybeSendTerminalConfirmation } from "../services/terminalWebhook";
-import type { SumUpTransaction } from "../services/sumupCloud";
 
 const r = Router();
 
@@ -92,12 +91,10 @@ r.post("/sumup", expressRawJson, async (req, res) => {
         scheme: attempt.scheme || undefined,
         last4: attempt.last4 || undefined,
       });
-      if (order?.id) {
-        attempt = await prisma.paymentAttempt.update({
-          where: { id: attempt.id },
-          data: { shopifyOrderId: order.id }
-        });
-      }
+      attempt = await prisma.paymentAttempt.update({
+        where: { id: attempt.id },
+        data: { shopifyOrderId: order.id }
+      });
     } catch (e) {
       // keep webhook success, the POS can retry order creation with /recover later
       console.error("Shopify order create failed:", e);

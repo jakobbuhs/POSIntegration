@@ -2,7 +2,7 @@ import fetch, { Response } from "node-fetch";
 import type { PaymentAttempt } from "@prisma/client";
 import { cfg } from "../config";
 import { prisma } from "../db/client";
-import { findTransactionByForeignId, mapSumUpStatus, SumUpTransaction } from "./sumupCloud";
+import { findTransactionByForeignId, mapSumUpStatus } from "./sumupCloud";
 
 const FINAL_STATUSES = new Set<PaymentAttempt["status"]>([
   "APPROVED",
@@ -11,6 +11,17 @@ const FINAL_STATUSES = new Set<PaymentAttempt["status"]>([
   "ERROR",
   "TIMEOUT"
 ]);
+
+type SumUpTransaction = {
+  transaction_id?: string;
+  id?: string;
+  status?: string;
+  amount?: { currency?: string; value?: number };
+  foreign_transaction_id?: string;
+  foreignId?: string;
+  metadata?: Record<string, unknown>;
+  [key: string]: unknown;
+};
 
 type NotifyOptions = {
   source?: string;
