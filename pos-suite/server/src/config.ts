@@ -13,12 +13,20 @@ export const cfg = {
     base: process.env.SUMUP_API_BASE!,
     apiKey: process.env.SUMUP_API_KEY!,
     affiliateKey: process.env.SUMUP_AFFILIATE_KEY!,
-    merchantCode: process.env.SUMUP_MERCHANT_CODE!
+    merchantCode: process.env.SUMUP_MERCHANT_CODE!,
+    returnUrl:
+      process.env.SUMUP_RETURN_URL ||
+      `http://localhost:${process.env.PORT || 4000}/webhooks/sumup`
   },
   shopify: {
     shop: process.env.SHOPIFY_SHOP!,
     token: process.env.SHOPIFY_ADMIN_TOKEN!,
     version: process.env.SHOPIFY_API_VERSION!
+  },
+  webhooks: {
+    terminalConfirmationUrl:
+      process.env.TERMINAL_CONFIRMATION_WEBHOOK_URL ||
+      "https://api.jbuhs.no/api/sumup/webhook/wtlK7QZFzwebLMNEI-CLw7XJhtNQyn8VaSEwKzdhpOE"
   },
   jwtSecret: process.env.DEVICE_JWT_SECRET!,
   features: {

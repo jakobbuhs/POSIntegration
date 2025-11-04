@@ -5,11 +5,16 @@ import { cfg } from "../config";
 import {
   createReaderCheckout,
   getCheckoutStatusByClientId,
-  mapSumUpStatus
+  findTransactionByForeignId,
+  mapSumUpStatus,
+  SumUpTransaction
 } from "../services/sumupCloud";
 import { createOrderInShopify } from "../services/shopifyAdmin";
+import { maybeSendTerminalConfirmation } from "../services/terminalWebhook";
+import { HttpTimeoutError } from "../services/http";
 
 const r = Router();
+const MIN_POLL_AGE_MS = 6500;
 
 // POST /payments/checkout
 r.post("/checkout", async (req, res, next) => {
@@ -29,26 +34,40 @@ r.post("/checkout", async (req, res, next) => {
       }
     });
 
-    const start = await createReaderCheckout({
-      readerId: terminalId,
-      amountMinor,
-      currency,
-      foreignId: orderRef,
-      appId: "no.miljit.posapp", // your bundle id
-      affiliateKey: cfg.sumup.affiliateKey
-    });
-
-    if (start.client_transaction_id) {
-      await prisma.paymentAttempt.update({
-        where: { orderRef },
-        data: { clientTransactionId: start.client_transaction_id }
+    try {
+      const start = await createReaderCheckout({
+        readerId: terminalId,
+        amountMinor,
+        currency,
+        foreignId: orderRef,
+        appId: "no.miljit.posapp", // your bundle id
+        affiliateKey: cfg.sumup.affiliateKey
       });
-    }
 
-    return res.json({
-      status: "PENDING",
-      client_transaction_id: start.client_transaction_id || null
-    });
+      if (start.client_transaction_id) {
+        await prisma.paymentAttempt.update({
+          where: { orderRef },
+          data: { clientTransactionId: start.client_transaction_id }
+        });
+      }
+
+      return res.json({
+        status: "PENDING",
+        client_transaction_id: start.client_transaction_id || null
+      });
+    } catch (err) {
+      const message = buildCheckoutError(err);
+      try {
+        await prisma.paymentAttempt.update({
+          where: { orderRef },
+          data: { status: "ERROR", message }
+        });
+      } catch (updateErr) {
+        console.warn("Failed to persist checkout error", updateErr);
+      }
+
+      return res.status(502).json({ status: "ERROR", message });
+    }
   } catch (e) { next(e); }
 });
 
@@ -59,16 +78,22 @@ r.get("/status", async (req, res, next) => {
     let attempt = await prisma.paymentAttempt.findUnique({ where: { orderRef } });
     if (!attempt) return res.status(404).json({ status: "UNKNOWN" });
 
-    const needsRefresh = attempt.status === "PENDING";
+    const createdAt = attempt.createdAt instanceof Date
+      ? attempt.createdAt
+      : new Date(attempt.createdAt as unknown as string);
+    const ageMs = Date.now() - createdAt.getTime();
+    const shouldPoll = attempt.status === "PENDING" && ageMs >= MIN_POLL_AGE_MS;
+    let pollAfterMs =
+      attempt.status === "PENDING" && !shouldPoll ? Math.max(0, MIN_POLL_AGE_MS - ageMs) : 0;
 
-    if (needsRefresh) {
+    if (shouldPoll) {
       try {
-        let tx: any = null;
+        let tx: SumUpTransaction | null = null;
 
         if (attempt.clientTransactionId) {
           // your earlier code path using client_transaction_id (keep it)
           const j = await getCheckoutStatusByClientId(attempt.clientTransactionId);
-          tx = (j.items && j.items[0]) || null;
+          tx = j.items?.[0] ?? null;
         }
 
         // Fallback when client_transaction_id is null or didn’t return anything yet
@@ -84,6 +109,8 @@ r.get("/status", async (req, res, next) => {
               data: {
                 status: mapped as any,
                 transactionId: tx.transaction_id ?? attempt.transactionId ?? null,
+                clientTransactionId:
+                  attempt.clientTransactionId ?? tx.client_transaction_id ?? (tx as any).clientTransactionId ?? null,
                 scheme: tx.scheme ?? attempt.scheme ?? null,
                 last4: tx.last4 ?? attempt.last4 ?? null,
                 approvalCode: tx.approval_code ?? attempt.approvalCode ?? null,
@@ -104,19 +131,41 @@ r.get("/status", async (req, res, next) => {
                   scheme: attempt.scheme || undefined,
                   last4: attempt.last4 || undefined
                 });
-                attempt = await prisma.paymentAttempt.update({
-                  where: { orderRef },
-                  data: { shopifyOrderId: order.id }
-                });
+                if (order?.id) {
+                  attempt = await prisma.paymentAttempt.update({
+                    where: { orderRef },
+                    data: { shopifyOrderId: order.id }
+                  });
+                }
               } catch (e) {
                 console.error("Shopify orderCreate (poll path) failed", e);
               }
+            }
+
+            try {
+              const result = await maybeSendTerminalConfirmation(attempt, {
+                source: "status-poll",
+                sumupTx: tx as any
+              });
+              if (result.sent) {
+                attempt = result.attempt;
+              } else if (result.reason !== "already-notified") {
+                console.info("Skipped terminal confirmation", {
+                  orderRef,
+                  reason: result.reason,
+                  verification: result.verification
+                });
+              }
+            } catch (e) {
+              console.error("Terminal confirmation webhook (poll path) failed", e);
             }
           }
         }
       } catch (e) {
         console.warn("SumUp status fetch error:", (e as Error).message);
       }
+
+      pollAfterMs = attempt.status === "PENDING" ? 2000 : 0;
     }
 
     return res.json({
@@ -126,9 +175,22 @@ r.get("/status", async (req, res, next) => {
       scheme: attempt.scheme,
       last4: attempt.last4,
       shopifyOrderId: attempt.shopifyOrderId,
-      message: attempt.message
+      message: attempt.message,
+      clientTransactionId: attempt.clientTransactionId,
+      pollAfterMs
     });
   } catch (e) { next(e); }
 });
+
+function buildCheckoutError(err: unknown): string {
+  if (err instanceof HttpTimeoutError) {
+    return `Timed out contacting SumUp after ${err.timeoutMs}ms`;
+  }
+  const message = (err as Error)?.message?.trim();
+  if (!message) {
+    return "Failed to start checkout with terminal";
+  }
+  return message.length > 300 ? message.slice(0, 300) : message;
+}
 
 export default r;
