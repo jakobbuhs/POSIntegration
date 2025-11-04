@@ -9,6 +9,8 @@ import { Router } from "express";
 import crypto from "crypto";
 import { prisma } from "../db/client";
 import { createOrderInShopify } from "../services/shopifyAdmin";
+import { maybeSendTerminalConfirmation } from "../services/terminalWebhook";
+import type { SumUpTransaction } from "../services/sumupCloud";
 
 const r = Router();
 
@@ -16,7 +18,24 @@ const r = Router();
 function verifySignature(raw: string, signature: string, secret: string) {
   if (!signature || !secret) return false;
   const expected = crypto.createHmac("sha256", secret).update(raw).digest("hex");
-  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+  const expectedBuf = Buffer.from(expected, "hex");
+  const hexCandidate = /^[0-9a-f]+$/i.test(signature)
+    ? Buffer.from(signature, "hex")
+    : null;
+  const base64Candidate = /^[0-9A-Za-z+/=]+$/.test(signature)
+    ? Buffer.from(signature, "base64")
+    : null;
+  const actual =
+    hexCandidate && hexCandidate.length === expectedBuf.length
+      ? hexCandidate
+      : base64Candidate;
+  if (!actual || actual.length !== expectedBuf.length) {
+    return false;
+  }
+  if (actual.length !== expectedBuf.length) {
+    return false;
+  }
+  return crypto.timingSafeEqual(expectedBuf, actual);
 }
 
 r.post("/sumup", expressRawJson, async (req, res) => {
@@ -34,7 +53,7 @@ r.post("/sumup", expressRawJson, async (req, res) => {
   // evt.data: { foreign_transaction_id, client_transaction_id, transaction_id, status, amount, currency,
   //             reader_id, scheme, last4, approval_code }
 
-  const data = evt.data || {};
+  const data = (evt.data || {}) as SumUpTransaction;
   const foreignId = data.foreign_transaction_id || data.foreignId || ""; // your orderRef
   const statusMap: Record<string, "APPROVED"|"DECLINED"|"CANCELLED"|"ERROR"> = {
     "SUCCESSFUL": "APPROVED", "APPROVED": "APPROVED",
@@ -43,32 +62,32 @@ r.post("/sumup", expressRawJson, async (req, res) => {
   const mapped = statusMap[(data.status || "").toUpperCase()] || "ERROR";
 
   // Upsert the attempt
-  const attempt = await prisma.paymentAttempt.upsert({
+  let attempt = await prisma.paymentAttempt.upsert({
     where: { orderRef: foreignId },
     update: {
       status: mapped,
       transactionId: data.transaction_id || null,
       clientTransactionId: data.client_transaction_id || null,
-      amountMinor: data.amount?.value || undefined,
-      currency: data.amount?.currency || undefined,
+      amountMinor: data.amount?.value ?? undefined,
+      currency: data.amount?.currency ?? undefined,
       readerId: data.reader_id || undefined,
       scheme: data.scheme || undefined,
       last4: data.last4 || undefined,
-      approvalCode: data.approval_code || undefined,
-      message: data.message || null,
+      approvalCode: (data as any).approval_code || undefined,
+      message: (data as any).message || null,
     },
     create: {
       orderRef: foreignId,
       readerId: data.reader_id || "unknown",
-      amountMinor: data.amount?.value || 0,
-      currency: data.amount?.currency || "NOK",
+      amountMinor: data.amount?.value ?? 0,
+      currency: data.amount?.currency ?? "NOK",
       status: mapped,
       transactionId: data.transaction_id || null,
       clientTransactionId: data.client_transaction_id || null,
       scheme: data.scheme || undefined,
       last4: data.last4 || undefined,
-      approvalCode: data.approval_code || undefined,
-      message: data.message || null,
+      approvalCode: (data as any).approval_code || undefined,
+      message: (data as any).message || null,
     }
   });
 
@@ -85,14 +104,34 @@ r.post("/sumup", expressRawJson, async (req, res) => {
         scheme: attempt.scheme || undefined,
         last4: attempt.last4 || undefined,
       });
-      await prisma.paymentAttempt.update({
-        where: { id: attempt.id },
-        data: { shopifyOrderId: order.id }
-      });
+      if (order?.id) {
+        attempt = await prisma.paymentAttempt.update({
+          where: { id: attempt.id },
+          data: { shopifyOrderId: order.id }
+        });
+      }
     } catch (e) {
       // keep webhook success, the POS can retry order creation with /recover later
       console.error("Shopify order create failed:", e);
     }
+  }
+
+  try {
+    const result = await maybeSendTerminalConfirmation(attempt, {
+      source: "sumup-webhook",
+      sumupTx: data
+    });
+    if (result.sent) {
+      attempt = result.attempt;
+    } else if (result.reason !== "already-notified") {
+      console.info("Skipped terminal confirmation", {
+        orderRef: attempt.orderRef,
+        reason: result.reason,
+        verification: result.verification
+      });
+    }
+  } catch (e) {
+    console.error("Terminal confirmation webhook (sumup webhook) failed", e);
   }
 
   return res.json({ ok: true });

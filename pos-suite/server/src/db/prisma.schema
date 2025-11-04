@@ -30,6 +30,9 @@ model PaymentAttempt {
 
   // Shopify mirror (set after success)
   shopifyOrderId      String?
+
+  // Outbound notification bookkeeping
+  terminalWebhookNotifiedAt DateTime?
 }
 
 enum PaymentStatus {
