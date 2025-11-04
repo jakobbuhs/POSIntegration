@@ -2,6 +2,32 @@
 import fetch from "node-fetch";
 import { cfg } from "../config";
 
+export type SumUpTransaction = {
+  transaction_id?: string;
+  id?: string;
+  status?: string;
+  amount?: { currency?: string; value?: number };
+  foreign_transaction_id?: string;
+  foreignId?: string;
+  metadata?: Record<string, unknown>;
+  scheme?: string;
+  last4?: string;
+  approval_code?: string;
+  message?: string;
+  reader_id?: string;
+  client_transaction_id?: string;
+  [key: string]: unknown;
+};
+
+type SumUpCheckoutStartResponse = {
+  client_transaction_id?: string;
+  [key: string]: unknown;
+};
+
+type SumUpTransactionList = {
+  items?: SumUpTransaction[];
+};
+
 export async function createReaderCheckout(args: {
   readerId: string;
   amountMinor: number;
@@ -10,7 +36,7 @@ export async function createReaderCheckout(args: {
   appId: string;        // your iOS bundle id, e.g. no.miljit.posapp
   affiliateKey: string; // SUMUP_AFFILIATE_KEY
   description?: string;
-}) {
+}): Promise<SumUpCheckoutStartResponse> {
   const url = `${cfg.sumup.base}/v0.1/merchants/${cfg.sumup.merchantCode}/readers/${args.readerId}/checkout`;
   const res = await fetch(url, {
     method: "POST",
@@ -29,7 +55,7 @@ export async function createReaderCheckout(args: {
     })
   });
   if (!res.ok) throw new Error(`SumUp checkout start failed ${res.status} ${await res.text()}`);
-  return res.json(); // expect client_transaction_id
+  return res.json() as Promise<SumUpCheckoutStartResponse>; // expect client_transaction_id
 }
 
 export async function terminateReaderCheckout(readerId: string) {
@@ -43,12 +69,12 @@ export async function terminateReaderCheckout(readerId: string) {
 }
 
 // Polling fallback: get status by client_transaction_id (or filter recent)
-export async function getCheckoutStatusByClientId(clientTxnId: string) {
+export async function getCheckoutStatusByClientId(clientTxnId: string): Promise<SumUpTransactionList> {
   // Some tenants allow filtering by client_transaction_id; if not, you can narrow by date/limit and filter locally.
   const url = `${cfg.sumup.base}/v0.1/merchants/${cfg.sumup.merchantCode}/transactions?client_transaction_id=${encodeURIComponent(clientTxnId)}`;
   const res = await fetch(url, { headers: { "Authorization": `Bearer ${cfg.sumup.apiKey}` } });
   if (!res.ok) throw new Error(`Status fetch failed ${res.status} ${await res.text()}`);
-  return res.json(); // { items: [...] }
+  return res.json() as Promise<SumUpTransactionList>; // { items: [...] }
 }
 
 export function mapSumUpStatus(s: string | undefined) {
@@ -60,17 +86,19 @@ export function mapSumUpStatus(s: string | undefined) {
   return "PENDING";
 }
 // Get recent transactions and filter locally by foreign_transaction_id (your orderRef)
-export async function findTransactionByForeignId(foreignId: string) {
+export async function findTransactionByForeignId(foreignId: string): Promise<SumUpTransaction | null> {
   // Pull recent txs; adjust limit or add date filters if needed
   const url = `${cfg.sumup.base}/v0.1/merchants/${cfg.sumup.merchantCode}/transactions?limit=50`;
   const res = await fetch(url, { headers: { "Authorization": `Bearer ${cfg.sumup.apiKey}` } });
   if (!res.ok) throw new Error(`Tx list failed ${res.status} ${await res.text()}`);
-  const j = await res.json(); // { items: [...] }
+  const j = (await res.json()) as SumUpTransactionList; // { items: [...] }
   const items = Array.isArray(j.items) ? j.items : [];
   // Match either explicit foreign id or metadata field names used by your tenant
-  return items.find((tx: any) =>
-    tx.foreign_transaction_id === foreignId ||
-    tx.foreignId === foreignId ||
-    tx.metadata?.foreign_transaction_id === foreignId
-  ) || null;
+  return (
+    items.find((tx: SumUpTransaction) =>
+      tx.foreign_transaction_id === foreignId ||
+      tx.foreignId === foreignId ||
+      tx.metadata?.foreign_transaction_id === foreignId
+    ) || null
+  );
 }
