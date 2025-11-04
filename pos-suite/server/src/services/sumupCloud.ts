@@ -1,5 +1,6 @@
 // server/src/services/sumupCloud.ts
 import fetch from "node-fetch";
+import type { PaymentStatus } from "@prisma/client";
 import { cfg } from "../config";
 
 export type SumUpTransaction = {
@@ -77,7 +78,7 @@ export async function getCheckoutStatusByClientId(clientTxnId: string): Promise<
   return res.json() as Promise<SumUpTransactionList>; // { items: [...] }
 }
 
-export function mapSumUpStatus(s: string | undefined) {
+export function mapSumUpStatus(s: string | undefined): PaymentStatus {
   const key = (s || "").toUpperCase();
   if (["SUCCESSFUL", "APPROVED", "PAID"].includes(key)) return "APPROVED";
   if (key === "DECLINED") return "DECLINED";
