@@ -13,58 +13,149 @@ struct PaymentView: View {
   var onDone: () -> Void
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 16) {
-      Text("Payment").font(.largeTitle).bold()
+    BottomCTA {
+      VStack(alignment: .leading, spacing: DesignSystem.Spacing.l) {
+        Text("Payment")
+          .font(.largeTitle.bold())
 
-      Picker("Terminal", selection: Binding(get: {
-        store.session.selectedTerminalId ?? ""
-      }, set: { store.session.selectedTerminalId = $0 })) {
-        ForEach(store.session.terminals) { t in
-          Text(t.label).tag(t.id)
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.s) {
+          Text("Terminal")
+            .font(.body.weight(.semibold))
+          Picker("Terminal", selection: Binding(get: {
+            store.session.selectedTerminalId ?? ""
+          }, set: { store.session.selectedTerminalId = $0 })) {
+            ForEach(store.session.terminals) { terminal in
+              Text(terminal.label).tag(terminal.id)
+            }
+          }
+          .pickerStyle(.menu)
         }
+
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+          Text("Amount due")
+            .font(.body)
+            .foregroundStyle(.secondary)
+          Text(CurrencyFormatter.nok(minor: store.amountMinor))
+            .font(.title2.weight(.semibold))
+        }
+
+        statusContent
       }
-      .pickerStyle(.menu)
-
-      Text("Amount: \(CurrencyFormatter.nok(minor: store.amountMinor))").font(.title3)
-
-      switch vm.state {
-      case .idle:
-        Button("Send to terminal") {
-          Task { await vm.startCheckout(store: store) }
-        }
-        .buttonStyle(.borderedProminent)
-        .disabled(store.session.selectedTerminalId == nil || store.amountMinor <= 0)
-
-      case .starting:
-        HStack { ProgressView(); Text("Starting…") }
-
-      case .pending:
-        VStack(alignment: .leading, spacing: 8) {
-          HStack { ProgressView(); Text("Waiting for card on terminal…") }
-          Text("Order \(store.orderRef)").font(.caption).foregroundColor(.secondary)
-          Button("Cancel") { vm.stop() }.buttonStyle(.bordered)
-        }
-
-      case .approved:
-        Text("Payment approved ✅").font(.title3).foregroundColor(.green)
-        Button("Continue") {
-          store.lastPayment = vm.info
-          vm.stop()
-          onDone()
-        }.buttonStyle(.borderedProminent)
-
-      case .declined(let reason):
-        Text("Declined: \(reason)").foregroundColor(.red)
-        Button("Retry") { vm.state = .idle }.buttonStyle(.borderedProminent)
-
-      case .error(let msg):
-        Text("Error: \(msg)").foregroundColor(.red)
-        Button("Retry") { vm.state = .idle }.buttonStyle(.borderedProminent)
-      }
-
-      Spacer()
+      .padding(.horizontal, DesignSystem.Sizing.horizontalPadding)
+      .padding(.top, DesignSystem.Spacing.l)
+    } actions: {
+      actionButtons
     }
-    .padding()
     .onDisappear { vm.stop() }
+  }
+
+  @ViewBuilder
+  private var statusContent: some View {
+    switch vm.state {
+    case .idle:
+      Text("Send the total to the selected terminal to begin payment.")
+        .font(.body)
+        .foregroundStyle(.secondary)
+
+    case .starting:
+      HStack(spacing: DesignSystem.Spacing.s) {
+        ProgressView()
+        Text("Sending payment to the terminal…")
+          .font(.body)
+      }
+
+    case .pending:
+      VStack(alignment: .leading, spacing: DesignSystem.Spacing.s) {
+        HStack(spacing: DesignSystem.Spacing.s) {
+          ProgressView()
+          Text("Waiting for the customer to tap or insert their card…")
+            .font(.body)
+        }
+        Text("Order \(store.orderRef)")
+          .font(.body)
+          .foregroundStyle(.secondary)
+      }
+
+    case .approved:
+      Text("Payment approved ✅")
+        .font(.title3.weight(.semibold))
+        .foregroundStyle(.green)
+
+    case .declined(let reason):
+      Text("Payment declined: \(reason)")
+        .font(.body)
+        .foregroundStyle(.red)
+
+    case .error(let message):
+      Text("Error: \(message)")
+        .font(.body)
+        .foregroundStyle(.red)
+    }
+  }
+
+  @ViewBuilder
+  private var actionButtons: some View {
+    switch vm.state {
+    case .idle:
+      Button("Send to terminal") {
+        Task { await vm.startCheckout(store: store) }
+      }
+      .buttonStyle(PrimaryButtonStyle())
+      .disabled(store.session.selectedTerminalId == nil || store.amountMinor <= 0)
+      .accessibilityLabel("Send total to payment terminal")
+      .accessibilityHint("Initiates checkout on the selected terminal.")
+
+    case .starting:
+      Button {
+      } label: {
+        HStack(spacing: DesignSystem.Spacing.s) {
+          ProgressView()
+          Text("Sending…")
+        }
+      }
+      .buttonStyle(PrimaryButtonStyle())
+      .disabled(true)
+
+    case .pending:
+      Button("Cancel payment") {
+        vm.stop()
+      }
+      .buttonStyle(SecondaryButtonStyle())
+      .accessibilityLabel("Cancel payment")
+      .accessibilityHint("Stops the current checkout on the terminal.")
+
+    case .approved:
+      Button("Continue") {
+        store.lastPayment = vm.info
+        vm.stop()
+        onDone()
+      }
+      .buttonStyle(PrimaryButtonStyle())
+      .accessibilityLabel("Continue to receipt")
+      .accessibilityHint("Moves on to the receipt screen.")
+
+    case .declined:
+      retryButtons
+
+    case .error:
+      retryButtons
+    }
+  }
+
+  @ViewBuilder
+  private var retryButtons: some View {
+    Button("Retry payment") {
+      vm.state = .idle
+    }
+    .buttonStyle(PrimaryButtonStyle())
+    .accessibilityLabel("Retry payment")
+    .accessibilityHint("Attempts to send the payment to the terminal again.")
+
+    Button("Cancel payment") {
+      vm.stop()
+    }
+    .buttonStyle(SecondaryButtonStyle())
+    .accessibilityLabel("Cancel payment")
+    .accessibilityHint("Stops the current checkout and keeps the cart open.")
   }
 }

@@ -20,29 +20,84 @@ struct CatalogView: View {
   }
 
   var body: some View {
-    VStack {
-      HStack {
-        TextField("Search products", text: $query).textFieldStyle(.roundedBorder)
-        Button("Cart (\(store.cart.reduce(0) { $0 + $1.qty }))") { next() }
-          .buttonStyle(.bordered)
-      }.padding()
+    BottomCTA {
+      VStack(alignment: .leading, spacing: DesignSystem.Spacing.l) {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.s) {
+          Text("Products")
+            .font(.largeTitle.bold())
 
-      List(filtered) { p in
-        HStack {
-          VStack(alignment: .leading) {
-            Text(p.title).font(.headline)
-            Text(CurrencyFormatter.nok(minor: p.priceMinor)).foregroundColor(.secondary)
+          Text("Search and add items to the customer's cart.")
+            .font(.body)
+            .foregroundStyle(.secondary)
+        }
+
+        VStack(spacing: DesignSystem.Spacing.s) {
+          TextField("Search products", text: $query)
+            .textFieldStyle(.roundedBorder)
+            .padding(.vertical, DesignSystem.Spacing.xs)
+            .accessibilityLabel("Search products")
+            .accessibilityHint("Filter the list of products by name or SKU.")
+
+          ScrollView {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 160), spacing: DesignSystem.Spacing.m)], spacing: DesignSystem.Spacing.l) {
+              ForEach(filtered) { product in
+                ProductCard(product: product) {
+                  store.add(product: product)
+                }
+              }
+            }
+            .padding(.bottom, DesignSystem.Spacing.l)
           }
-          Spacer()
-          Button("+") { store.add(product: p) }
-            .buttonStyle(.borderedProminent)
         }
       }
+      .padding(.horizontal, DesignSystem.Sizing.horizontalPadding)
+      .padding(.top, DesignSystem.Spacing.l)
+    } actions: {
+      Button("View cart (\(store.cart.reduce(0) { $0 + $1.qty }))") {
+        next()
+      }
+      .buttonStyle(PrimaryButtonStyle())
+      .disabled(store.cart.isEmpty)
+      .accessibilityLabel("View cart")
+      .accessibilityHint("Opens the cart to review selected items.")
     }
     .sheet(item: $showOverrideFor) { item in
       OverrideSheet(item: item) { newMinor in
         store.setOverride(itemId: item.id, minor: newMinor)
       }
+    }
+  }
+
+  private struct ProductCard: View {
+    let product: Product
+    var onAdd: () -> Void
+
+    var body: some View {
+      VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
+        Text(product.title)
+          .font(.title3.weight(.semibold))
+          .multilineTextAlignment(.leading)
+
+        Text(CurrencyFormatter.nok(minor: product.priceMinor))
+          .font(.title3)
+          .foregroundStyle(.secondary)
+
+        Button {
+          onAdd()
+        } label: {
+          Label("Add", systemImage: "plus")
+            .labelStyle(.titleAndIcon)
+        }
+        .buttonStyle(PrimaryButtonStyle())
+        .accessibilityLabel("Add \(product.title) to cart")
+        .accessibilityHint("Adds the product to the shopping cart.")
+      }
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .padding(DesignSystem.Spacing.m)
+      .background(
+        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.standard, style: .continuous)
+          .fill(Color(uiColor: .secondarySystemBackground))
+      )
     }
   }
 
