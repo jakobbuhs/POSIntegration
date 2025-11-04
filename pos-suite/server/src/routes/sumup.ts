@@ -6,12 +6,10 @@ import {
   createReaderCheckout,
   getCheckoutStatusByClientId,
   findTransactionByForeignId,
-  mapSumUpStatus,
-  SumUpTransaction
+  mapSumUpStatus
 } from "../services/sumupCloud";
 import { createOrderInShopify } from "../services/shopifyAdmin";
 import { maybeSendTerminalConfirmation } from "../services/terminalWebhook";
-import { HttpTimeoutError } from "../services/http";
 
 const r = Router();
 
@@ -140,12 +138,6 @@ r.get("/status", async (req, res, next) => {
               });
               if (result.sent) {
                 attempt = result.attempt;
-              } else if (result.reason !== "already-notified") {
-                console.info("Skipped terminal confirmation", {
-                  orderRef,
-                  reason: result.reason,
-                  verification: result.verification
-                });
               }
             } catch (e) {
               console.error("Terminal confirmation webhook (poll path) failed", e);

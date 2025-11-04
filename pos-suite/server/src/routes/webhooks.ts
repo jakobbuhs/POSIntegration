@@ -10,7 +10,6 @@ import crypto from "crypto";
 import { prisma } from "../db/client";
 import { createOrderInShopify } from "../services/shopifyAdmin";
 import { maybeSendTerminalConfirmation } from "../services/terminalWebhook";
-import type { SumUpTransaction } from "../services/sumupCloud";
 
 const r = Router();
 
@@ -18,20 +17,8 @@ const r = Router();
 function verifySignature(raw: string, signature: string, secret: string) {
   if (!signature || !secret) return false;
   const expected = crypto.createHmac("sha256", secret).update(raw).digest("hex");
-  const expectedBuf = Buffer.from(expected, "hex");
-  const hexCandidate = /^[0-9a-f]+$/i.test(signature)
-    ? Buffer.from(signature, "hex")
-    : null;
-  const base64Candidate = /^[0-9A-Za-z+/=]+$/.test(signature)
-    ? Buffer.from(signature, "base64")
-    : null;
-  const actual =
-    hexCandidate && hexCandidate.length === expectedBuf.length
-      ? hexCandidate
-      : base64Candidate;
-  if (!actual || actual.length !== expectedBuf.length) {
-    return false;
-  }
+  const actual = Buffer.from(signature);
+  const expectedBuf = Buffer.from(expected);
   if (actual.length !== expectedBuf.length) {
     return false;
   }
@@ -104,12 +91,10 @@ r.post("/sumup", expressRawJson, async (req, res) => {
         scheme: attempt.scheme || undefined,
         last4: attempt.last4 || undefined,
       });
-      if (order?.id) {
-        attempt = await prisma.paymentAttempt.update({
-          where: { id: attempt.id },
-          data: { shopifyOrderId: order.id }
-        });
-      }
+      attempt = await prisma.paymentAttempt.update({
+        where: { id: attempt.id },
+        data: { shopifyOrderId: order.id }
+      });
     } catch (e) {
       // keep webhook success, the POS can retry order creation with /recover later
       console.error("Shopify order create failed:", e);
@@ -123,12 +108,6 @@ r.post("/sumup", expressRawJson, async (req, res) => {
     });
     if (result.sent) {
       attempt = result.attempt;
-    } else if (result.reason !== "already-notified") {
-      console.info("Skipped terminal confirmation", {
-        orderRef: attempt.orderRef,
-        reason: result.reason,
-        verification: result.verification
-      });
     }
   } catch (e) {
     console.error("Terminal confirmation webhook (sumup webhook) failed", e);
