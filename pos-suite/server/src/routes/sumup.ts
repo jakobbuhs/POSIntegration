@@ -31,26 +31,40 @@ r.post("/checkout", async (req, res, next) => {
       }
     });
 
-    const start = await createReaderCheckout({
-      readerId: terminalId,
-      amountMinor,
-      currency,
-      foreignId: orderRef,
-      appId: "no.miljit.posapp", // your bundle id
-      affiliateKey: cfg.sumup.affiliateKey
-    });
-
-    if (start.client_transaction_id) {
-      await prisma.paymentAttempt.update({
-        where: { orderRef },
-        data: { clientTransactionId: start.client_transaction_id }
+    try {
+      const start = await createReaderCheckout({
+        readerId: terminalId,
+        amountMinor,
+        currency,
+        foreignId: orderRef,
+        appId: "no.miljit.posapp", // your bundle id
+        affiliateKey: cfg.sumup.affiliateKey
       });
-    }
 
-    return res.json({
-      status: "PENDING",
-      client_transaction_id: start.client_transaction_id || null
-    });
+      if (start.client_transaction_id) {
+        await prisma.paymentAttempt.update({
+          where: { orderRef },
+          data: { clientTransactionId: start.client_transaction_id }
+        });
+      }
+
+      return res.json({
+        status: "PENDING",
+        client_transaction_id: start.client_transaction_id || null
+      });
+    } catch (err) {
+      const message = buildCheckoutError(err);
+      try {
+        await prisma.paymentAttempt.update({
+          where: { orderRef },
+          data: { status: "ERROR", message }
+        });
+      } catch (updateErr) {
+        console.warn("Failed to persist checkout error", updateErr);
+      }
+
+      return res.status(502).json({ status: "ERROR", message });
+    }
   } catch (e) { next(e); }
 });
 
@@ -146,5 +160,16 @@ r.get("/status", async (req, res, next) => {
     });
   } catch (e) { next(e); }
 });
+
+function buildCheckoutError(err: unknown): string {
+  if (err instanceof HttpTimeoutError) {
+    return `Timed out contacting SumUp after ${err.timeoutMs}ms`;
+  }
+  const message = (err as Error)?.message?.trim();
+  if (!message) {
+    return "Failed to start checkout with terminal";
+  }
+  return message.length > 300 ? message.slice(0, 300) : message;
+}
 
 export default r;

@@ -2,6 +2,33 @@
 import fetch from "node-fetch";
 import type { PaymentStatus } from "@prisma/client";
 import { cfg } from "../config";
+import { fetchWithTimeout, HttpTimeoutError, Response } from "./http";
+
+export type SumUpTransaction = {
+  transaction_id?: string;
+  id?: string;
+  status?: string;
+  amount?: { currency?: string; value?: number };
+  foreign_transaction_id?: string;
+  foreignId?: string;
+  metadata?: Record<string, unknown>;
+  scheme?: string;
+  last4?: string;
+  approval_code?: string;
+  message?: string;
+  reader_id?: string;
+  client_transaction_id?: string;
+  [key: string]: unknown;
+};
+
+type SumUpCheckoutStartResponse = {
+  client_transaction_id?: string;
+  [key: string]: unknown;
+};
+
+type SumUpTransactionList = {
+  items?: SumUpTransaction[];
+};
 
 export type SumUpTransaction = {
   transaction_id?: string;
@@ -39,32 +66,52 @@ export async function createReaderCheckout(args: {
   description?: string;
 }): Promise<SumUpCheckoutStartResponse> {
   const url = `${cfg.sumup.base}/v0.1/merchants/${cfg.sumup.merchantCode}/readers/${args.readerId}/checkout`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${cfg.sumup.apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      total_amount: { currency: args.currency, minor_unit: 2, value: args.amountMinor },
-      affiliate: {
-        app_id: args.appId,
-        key: args.affiliateKey,
-        foreign_transaction_id: args.foreignId
+  let res: Response;
+  try {
+    res = await fetchWithTimeout(url, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${cfg.sumup.apiKey}`,
+        "Content-Type": "application/json",
       },
-      description: args.description || "POS checkout"
-    })
-  });
+      body: JSON.stringify({
+        total_amount: { currency: args.currency, minor_unit: 2, value: args.amountMinor },
+        affiliate: {
+          app_id: args.appId,
+          key: args.affiliateKey,
+          foreign_transaction_id: args.foreignId
+        },
+        description: args.description || "POS checkout"
+      })
+    }, 15000);
+  } catch (err) {
+    if (err instanceof HttpTimeoutError) {
+      throw new Error(`SumUp checkout start timed out after ${err.timeoutMs}ms`);
+    }
+    throw err;
+  }
   if (!res.ok) throw new Error(`SumUp checkout start failed ${res.status} ${await res.text()}`);
   return res.json() as Promise<SumUpCheckoutStartResponse>; // expect client_transaction_id
 }
 
 export async function terminateReaderCheckout(readerId: string) {
   const url = `${cfg.sumup.base}/v0.1/merchants/${cfg.sumup.merchantCode}/readers/${readerId}/terminate`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Authorization": `Bearer ${cfg.sumup.apiKey}` }
-  });
+  let res: Response;
+  try {
+    res = await fetchWithTimeout(
+      url,
+      {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${cfg.sumup.apiKey}` }
+      },
+      10000
+    );
+  } catch (err) {
+    if (err instanceof HttpTimeoutError) {
+      throw new Error(`Terminate checkout timed out after ${err.timeoutMs}ms`);
+    }
+    throw err;
+  }
   if (!res.ok) throw new Error(`Terminate failed ${res.status} ${await res.text()}`);
   return res.json();
 }
@@ -72,8 +119,23 @@ export async function terminateReaderCheckout(readerId: string) {
 // Polling fallback: get status by client_transaction_id (or filter recent)
 export async function getCheckoutStatusByClientId(clientTxnId: string): Promise<SumUpTransactionList> {
   // Some tenants allow filtering by client_transaction_id; if not, you can narrow by date/limit and filter locally.
-  const url = `${cfg.sumup.base}/v0.1/merchants/${cfg.sumup.merchantCode}/transactions?client_transaction_id=${encodeURIComponent(clientTxnId)}`;
-  const res = await fetch(url, { headers: { "Authorization": `Bearer ${cfg.sumup.apiKey}` } });
+  const url =
+    `${cfg.sumup.base}/v0.1/merchants/${cfg.sumup.merchantCode}/transactions?client_transaction_id=${encodeURIComponent(
+      clientTxnId
+    )}`;
+  let res: Response;
+  try {
+    res = await fetchWithTimeout(
+      url,
+      { headers: { "Authorization": `Bearer ${cfg.sumup.apiKey}` } },
+      10000
+    );
+  } catch (err) {
+    if (err instanceof HttpTimeoutError) {
+      throw new Error(`Checkout status fetch timed out after ${err.timeoutMs}ms`);
+    }
+    throw err;
+  }
   if (!res.ok) throw new Error(`Status fetch failed ${res.status} ${await res.text()}`);
   return res.json() as Promise<SumUpTransactionList>; // { items: [...] }
 }
@@ -90,7 +152,19 @@ export function mapSumUpStatus(s: string | undefined): PaymentStatus {
 export async function findTransactionByForeignId(foreignId: string): Promise<SumUpTransaction | null> {
   // Pull recent txs; adjust limit or add date filters if needed
   const url = `${cfg.sumup.base}/v0.1/merchants/${cfg.sumup.merchantCode}/transactions?limit=50`;
-  const res = await fetch(url, { headers: { "Authorization": `Bearer ${cfg.sumup.apiKey}` } });
+  let res: Response;
+  try {
+    res = await fetchWithTimeout(
+      url,
+      { headers: { "Authorization": `Bearer ${cfg.sumup.apiKey}` } },
+      10000
+    );
+  } catch (err) {
+    if (err instanceof HttpTimeoutError) {
+      throw new Error(`Transaction lookup timed out after ${err.timeoutMs}ms`);
+    }
+    throw err;
+  }
   if (!res.ok) throw new Error(`Tx list failed ${res.status} ${await res.text()}`);
   const j = (await res.json()) as SumUpTransactionList; // { items: [...] }
   const items = Array.isArray(j.items) ? j.items : [];
