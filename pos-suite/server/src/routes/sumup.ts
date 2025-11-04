@@ -12,6 +12,7 @@ import { createOrderInShopify } from "../services/shopifyAdmin";
 import { maybeSendTerminalConfirmation } from "../services/terminalWebhook";
 
 const r = Router();
+const MIN_POLL_AGE_MS = 6500;
 
 // POST /payments/checkout
 r.post("/checkout", async (req, res, next) => {
@@ -75,9 +76,15 @@ r.get("/status", async (req, res, next) => {
     let attempt = await prisma.paymentAttempt.findUnique({ where: { orderRef } });
     if (!attempt) return res.status(404).json({ status: "UNKNOWN" });
 
-    const needsRefresh = attempt.status === "PENDING";
+    const createdAt = attempt.createdAt instanceof Date
+      ? attempt.createdAt
+      : new Date(attempt.createdAt as unknown as string);
+    const ageMs = Date.now() - createdAt.getTime();
+    const shouldPoll = attempt.status === "PENDING" && ageMs >= MIN_POLL_AGE_MS;
+    let pollAfterMs =
+      attempt.status === "PENDING" && !shouldPoll ? Math.max(0, MIN_POLL_AGE_MS - ageMs) : 0;
 
-    if (needsRefresh) {
+    if (shouldPoll) {
       try {
         let tx: SumUpTransaction | null = null;
 
@@ -100,6 +107,8 @@ r.get("/status", async (req, res, next) => {
               data: {
                 status: mapped as any,
                 transactionId: tx.transaction_id ?? attempt.transactionId ?? null,
+                clientTransactionId:
+                  attempt.clientTransactionId ?? tx.client_transaction_id ?? (tx as any).clientTransactionId ?? null,
                 scheme: tx.scheme ?? attempt.scheme ?? null,
                 last4: tx.last4 ?? attempt.last4 ?? null,
                 approvalCode: tx.approval_code ?? attempt.approvalCode ?? null,
@@ -147,6 +156,8 @@ r.get("/status", async (req, res, next) => {
       } catch (e) {
         console.warn("SumUp status fetch error:", (e as Error).message);
       }
+
+      pollAfterMs = attempt.status === "PENDING" ? 2000 : 0;
     }
 
     return res.json({
@@ -156,7 +167,9 @@ r.get("/status", async (req, res, next) => {
       scheme: attempt.scheme,
       last4: attempt.last4,
       shopifyOrderId: attempt.shopifyOrderId,
-      message: attempt.message
+      message: attempt.message,
+      clientTransactionId: attempt.clientTransactionId,
+      pollAfterMs
     });
   } catch (e) { next(e); }
 });

@@ -13,7 +13,10 @@ export const cfg = {
     base: process.env.SUMUP_API_BASE!,
     apiKey: process.env.SUMUP_API_KEY!,
     affiliateKey: process.env.SUMUP_AFFILIATE_KEY!,
-    merchantCode: process.env.SUMUP_MERCHANT_CODE!
+    merchantCode: process.env.SUMUP_MERCHANT_CODE!,
+    returnUrl:
+      process.env.SUMUP_RETURN_URL ||
+      `http://localhost:${process.env.PORT || 4000}/webhooks/sumup`
   },
   shopify: {
     shop: process.env.SHOPIFY_SHOP!,

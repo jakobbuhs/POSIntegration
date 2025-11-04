@@ -145,7 +145,8 @@ export function mapSumUpStatus(s: string | undefined): PaymentStatus {
   if (["SUCCESSFUL", "APPROVED", "PAID"].includes(key)) return "APPROVED";
   if (key === "DECLINED") return "DECLINED";
   if (key === "CANCELLED" || key === "CANCELED") return "CANCELLED";
-  if (key === "ERROR" || key === "FAILED") return "ERROR";
+  if (key === "FAILED") return "DECLINED";
+  if (key === "ERROR") return "ERROR";
   return "PENDING";
 }
 // Get recent transactions and filter locally by foreign_transaction_id (your orderRef)
