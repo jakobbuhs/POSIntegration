@@ -45,6 +45,9 @@ model PaymentAttempt {
   cartJson            Json?
   customerJson        Json?
 
+  // Outbound confirmation bookkeeping
+  terminalWebhookNotifiedAt DateTime?
+
   @@index([clientTransactionId])
   @@index([readerId])
   @@index([status, createdAt])

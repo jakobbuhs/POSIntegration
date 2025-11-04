@@ -8,10 +8,20 @@
 import fetch from "node-fetch";
 import { cfg } from "../config";
 
+type ShopifyOrderCreateResponse = {
+  data?: {
+    orderCreate?: {
+      order?: { id: string; name?: string };
+      userErrors?: { field?: string[] | null; message: string }[];
+    };
+  };
+  errors?: unknown;
+};
+
 export async function createOrderInShopify(args: {
   cart: any[], customer: any, amountMinor: number, currency: string,
   transactionId: string, approvalCode?: string, scheme?: string, last4?: string
-}) {
+}): Promise<{ id: string; name?: string } | null> {
   const url = `https://${cfg.shopify.shop}/admin/api/${cfg.shopify.version}/graphql.json`;
 
   const noteAttrs = [
@@ -61,9 +71,9 @@ export async function createOrderInShopify(args: {
     body: JSON.stringify({ query: mutation, variables })
   });
 
-  const json = await res.json();
+  const json = (await res.json()) as ShopifyOrderCreateResponse;
   if (json.errors || json.data?.orderCreate?.userErrors?.length) {
     throw new Error("Shopify orderCreate failed: " + JSON.stringify(json));
   }
-  return json.data.orderCreate.order;
+  return json.data?.orderCreate?.order ?? null;
 }
