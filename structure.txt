@@ -1,0 +1,139 @@
+/Users/jakobbuhs/Documents/utvikling/SUMUPPOSAPP
+├── admin
+│   ├── next.config.js
+│   ├── package-lock.json
+│   ├── package.json
+│   └── src
+│       ├── components
+│       │   ├── Forms.tsx
+│       │   └── Layout.tsx
+│       ├── lib
+│       │   └── api.ts
+│       └── pages
+│           ├── index.tsx
+│           ├── locations.tsx
+│           ├── terminals.tsx
+│           └── users.tsx
+├── pos-suite
+│   ├── ios
+│   │   ├── Info.plist
+│   │   ├── POSApp
+│   │   │   ├── App
+│   │   │   │   ├── AppRouter.swift
+│   │   │   │   └── POSApp.swift
+│   │   │   ├── Config
+│   │   │   │   ├── Secrets.plist
+│   │   │   │   └── SecretsLoader.swift
+│   │   │   ├── Data
+│   │   │   │   ├── Models
+│   │   │   │   │   ├── CartItem.swift
+│   │   │   │   │   ├── Customer.swift
+│   │   │   │   │   ├── PaymentAttemptDT0.swift
+│   │   │   │   │   ├── Product.swift
+│   │   │   │   │   └── TerminalRef.swift
+│   │   │   │   └── Repositories
+│   │   │   │       └── CatalogRepository.swift
+│   │   │   ├── Features
+│   │   │   │   ├── Auth
+│   │   │   │   │   └── AuthView.swift
+│   │   │   │   ├── Cart
+│   │   │   │   │   └── CartView.swift
+│   │   │   │   ├── Catalog
+│   │   │   │   │   ├── CatalogView.swift
+│   │   │   │   │   └── PriceOverrideSheet.swift
+│   │   │   │   ├── Customer
+│   │   │   │   │   └── CustomerView.swift
+│   │   │   │   ├── Payment
+│   │   │   │   │   ├── PaymentView.swift
+│   │   │   │   │   └── WaitingForCardView.swift
+│   │   │   │   ├── Reciept
+│   │   │   │   │   └── RecieptView.swift
+│   │   │   │   └── Settings
+│   │   │   │       └── SettingsView.swift
+│   │   │   ├── Info.plist
+│   │   │   ├── Network
+│   │   │   │   ├── APIClient.swift
+│   │   │   │   ├── LocationsAPI.swift
+│   │   │   │   └── PaymentsAPI.swift
+│   │   │   ├── Store
+│   │   │   │   ├── AppStore.swift
+│   │   │   │   └── PaymentViewModel.swift
+│   │   │   ├── SumUp
+│   │   │   │   ├── SumUpCoordinator.swift
+│   │   │   │   └── SumUpTypes.swift
+│   │   │   └── Utilities
+│   │   │       ├── AppLogger.swift
+│   │   │       ├── CurrencyFormatter.swift
+│   │   │       ├── Debounce.swift
+│   │   │       ├── UUID+Lower.swift
+│   │   │       └── Validators.swift
+│   │   └── POSApp.xcodeproj
+│   ├── README.md
+│   └── server
+│       ├── package-lock.json
+│       ├── package.json
+│       ├── prisma
+│       │   ├── migrations
+│       │   │   ├── 20251028062334_init
+│       │   │   │   └── migration.sql
+│       │   │   ├── 20251028063918_init
+│       │   │   │   └── migration.sql
+│       │   │   └── migration_lock.toml
+│       │   └── schema.prisma
+│       ├── src
+│       │   ├── auth
+│       │   │   └── deviceAuth.ts
+│       │   ├── config.ts
+│       │   ├── db
+│       │   │   ├── client.ts
+│       │   │   └── prisma.schema
+│       │   ├── domain
+│       │   │   ├── payments.ts
+│       │   │   └── reconciliation.ts
+│       │   ├── index.ts
+│       │   ├── middleware
+│       │   │   └── error.ts
+│       │   ├── routes
+│       │   │   ├── admin.ts
+│       │   │   ├── health.ts
+│       │   │   ├── shopify.ts
+│       │   │   ├── sumup.ts
+│       │   │   └── webhooks.ts
+│       │   └── services
+│       │       ├── shopifyAdmin.ts
+│       │       ├── sumupCloud.ts
+│       │       ├── sumupSdkProxy.ts
+│       │       └── terminalWebhook.ts
+│       └── tsconfig.json
+├── structure.txt
+├── SUMUPPOSAPP
+│   ├── Assets.xcassets
+│   │   ├── AccentColor.colorset
+│   │   │   └── Contents.json
+│   │   ├── AppIcon.appiconset
+│   │   │   └── Contents.json
+│   │   └── Contents.json
+│   ├── ContentView.swift
+│   ├── Item.swift
+│   └── SUMUPPOSAPPApp.swift
+├── SUMUPPOSAPP.xcodeproj
+│   ├── project.pbxproj
+│   ├── project.xcworkspace
+│   │   ├── contents.xcworkspacedata
+│   │   ├── xcshareddata
+│   │   │   └── swiftpm
+│   │   │       └── configuration
+│   │   └── xcuserdata
+│   │       └── jakobbuhs.xcuserdatad
+│   │           └── UserInterfaceState.xcuserstate
+│   └── xcuserdata
+│       └── jakobbuhs.xcuserdatad
+│           └── xcschemes
+│               └── xcschememanagement.plist
+├── SUMUPPOSAPPTests
+│   └── SUMUPPOSAPPTests.swift
+└── SUMUPPOSAPPUITests
+    ├── SUMUPPOSAPPUITests.swift
+    └── SUMUPPOSAPPUITestsLaunchTests.swift
+
+54 directories, 83 files

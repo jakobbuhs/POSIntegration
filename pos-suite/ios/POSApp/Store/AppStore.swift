@@ -9,72 +9,145 @@ import Foundation
 import SwiftUI
 
 @MainActor
-final class AppStore: ObservableObject {
-  struct Session {
-    var authed: Bool = false
-    var locationName: String = "Oslo"
+class AppStore: ObservableObject {
+    // Products
+    @Published var products: [Product] = []
+    @Published var isLoadingProducts = false
+    @Published var productsError: String?
+    
+    // Cart
+    @Published var cart: [CartItem] = []
+    @Published var customer = Customer()
+    
+    // Session
+    @Published var session = Session()
+    
+    // Payment
+    @Published var orderRef: String?
+    @Published var lastPayment: PaymentAttemptDTO?
+    
+    // Computed properties
+    var amountMinor: Int {
+        cart.reduce(0) { total, item in
+            if let product = products.first(where: { $0.id == item.productId }) {
+                let price = item.overrideMinor ?? product.priceMinor
+                return total + (price * item.qty)
+            }
+            return total
+        }
+    }
+    
+    // MARK: - Product Methods
+    
+    /// Load products from API
+    func loadProducts() async {
+        guard !isLoadingProducts else { return }
+        
+        isLoadingProducts = true
+        productsError = nil
+        
+        do {
+            let fetchedProducts = try await ProductRepository.shared.fetchProducts()
+            products = fetchedProducts
+            print("✅ Loaded \(products.count) products")
+        } catch {
+            productsError = "Failed to load products: \(error.localizedDescription)"
+            print("❌ Product load error: \(error)")
+        }
+        
+        isLoadingProducts = false
+    }
+    
+    /// Refresh products (force sync on server)
+    func refreshProducts() async {
+        guard !isLoadingProducts else { return }
+        
+        isLoadingProducts = true
+        productsError = nil
+        
+        do {
+            try await ProductRepository.shared.syncProducts()
+            try await Task.sleep(nanoseconds: 1_000_000_000) // Wait 1 second for sync
+            let fetchedProducts = try await ProductRepository.shared.fetchProducts()
+            products = fetchedProducts
+            print("✅ Synced and loaded \(products.count) products")
+        } catch {
+            productsError = "Failed to refresh products: \(error.localizedDescription)"
+            print("❌ Product refresh error: \(error)")
+        }
+        
+        isLoadingProducts = false
+    }
+    
+    // MARK: - Cart Methods
+    
+    func add(product: Product) {
+        if let index = cart.firstIndex(where: { $0.productId == product.id }) {
+            cart[index].qty += 1
+        } else {
+            cart.append(CartItem(
+                id: UUID(),
+                productId: product.id,
+                qty: 1,
+                overrideMinor: nil
+            ))
+        }
+    }
+    
+    func remove(item: CartItem) {
+        if let index = cart.firstIndex(where: { $0.id == item.id }) {
+            if cart[index].qty > 1 {
+                cart[index].qty -= 1
+            } else {
+                cart.remove(at: index)
+            }
+        }
+    }
+    
+    func removeAll(itemId: UUID) {
+        cart.removeAll(where: { $0.id == itemId })
+    }
+    
+    func setOverride(itemId: UUID, minor: Int?) {
+        if let index = cart.firstIndex(where: { $0.id == itemId }) {
+            cart[index].overrideMinor = minor
+        }
+    }
+    
+    func clearCart() {
+        cart.removeAll()
+    }
+    
+    // MARK: - Session Methods
+    
+    func login(passcode: String) {
+        // Simple passcode validation
+        // TODO: Implement proper device authentication
+        if passcode.count == 4 {
+            session.authed = true
+        }
+    }
+    
+    func logout() {
+        session.authed = false
+        clearCart()
+        customer = Customer()
+    }
+    
+    // MARK: - Sale Methods
+    
+    func resetSale() {
+        clearCart()
+        customer = Customer()
+        orderRef = nil
+        lastPayment = nil
+    }
+}
+
+struct Session: Codable {
+    var authed = false
+    var deviceCode: String?
+    var locationId: String?
+    var selectedTerminalId: String?
     var terminals: [TerminalRef] = []
-    var selectedTerminalId: String? = nil
-  }
-
-  @Published var session = Session()
-  @Published var products: [Product] = []
-  @Published var cart: [CartItem] = []
-  @Published var customer = Customer()
-  @Published var orderRef: String = UUID().uuidString.lowercased()
-  @Published var lastPayment: PaymentAttemptDTO?
-
-  // computed amount after overrides
-  var amountMinor: Int {
-    cart.reduce(0) { acc, item in
-      let price = item.overrideMinor ?? (products.first { $0.id == item.productId }?.priceMinor ?? 0)
-      return acc + price * item.qty
-    }
-  }
-
-  func bootstrap() async {
-    // mock products & terminals for now (replace with server pull later)
-    if products.isEmpty {
-      products = [
-        Product(id: "p1", title: "Helmet", priceMinor: 49900, currency: "NOK", sku: "HELM-001"),
-        Product(id: "p2", title: "Bottle", priceMinor: 9900, currency: "NOK", sku: "BOT-001"),
-        Product(id: "p3", title: "Gloves", priceMinor: 19900, currency: "NOK", sku: "GLOV-001"),
-      ]
-    }
-    if session.terminals.isEmpty {
-      session.terminals = [
-        TerminalRef(id: "rdr_1682VS3C3A912S7N707WCW37YY", label: "Solo Oslo 1")
-      ]
-      session.selectedTerminalId = session.terminals.first?.id
-    }
-  }
-
-  func resetSale() {
-    cart = []
-    customer = Customer()
-    orderRef = UUID().uuidString.lowercased()
-    lastPayment = nil
-  }
-
-  func add(product: Product, qty: Int = 1) {
-    if let idx = cart.firstIndex(where: { $0.productId == product.id }) {
-      cart[idx].qty += qty
-    } else {
-      cart.append(CartItem(id: UUID(), productId: product.id, qty: qty, overrideMinor: nil))
-    }
-  }
-
-  func remove(item: CartItem) {
-    cart.removeAll { $0.id == item.id }
-  }
-
-  func setOverride(itemId: UUID, minor: Int?) {
-    guard let idx = cart.firstIndex(where: { $0.id == itemId }) else { return }
-    cart[idx].overrideMinor = minor
-  }
-
-  func login(passcode: String) {
-    // MVP local check; replace with server call if needed
-    session.authed = !passcode.isEmpty
-  }
 }

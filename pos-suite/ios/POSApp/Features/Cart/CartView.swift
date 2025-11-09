@@ -2,7 +2,7 @@
 //  CartView.swift
 //  POS-app-shopify
 //
-//  Created by Jakob Buhs on 28/10/2025.
+//  Enhanced with modern layout and better UX
 //
 
 import SwiftUI
@@ -83,8 +83,6 @@ struct CartView: View {
       .accessibilityLabel("Back to catalog")
       .accessibilityHint("Returns to the product catalog to add more items.")
     }
-    .navigationTitle("Cart")
-  }
 }
 
 private struct CartItemCard: View {
