@@ -2,7 +2,7 @@
 //  CustomerView.swift
 //  POS-app-shopify
 //
-//  Created by Jakob Buhs on 28/10/2025.
+//  Enhanced with modern form design and better validation
 //
 
 import SwiftUI

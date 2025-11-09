@@ -1,8 +1,8 @@
 //
-//  RecieptView.swift
+//  ReceiptView.swift
 //  POS-app-shopify
 //
-//  Created by Jakob Buhs on 28/10/2025.
+//  Enhanced receipt view with modern design
 //
 
 import SwiftUI

@@ -1,12 +1,13 @@
 import SwiftUI
 
 enum Route: Hashable {
-  case auth, catalog, cart, customer, payment, receipt
+  case auth, catalog, cart, customer, payment, receipt, settings
 }
 
 struct AppRouter: View {
   @EnvironmentObject var store: AppStore
-  @State private var path: [Route] = []   // ← typed path
+  @State private var path: [Route] = []
+  @State private var showSettings = false
 
   var body: some View {
     NavigationStack(path: $path) {
@@ -17,6 +18,13 @@ struct AppRouter: View {
             AuthView(onSuccess: { path.append(.catalog) })
           case .catalog:
             CatalogView(next: { path.append(.cart) })
+              .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                  Button(action: { showSettings = true }) {
+                    Image(systemName: "gearshape.fill")
+                  }
+                }
+              }
           case .cart:
             CartView(
               prev: { if !path.isEmpty { path.removeLast() } },
@@ -30,8 +38,16 @@ struct AppRouter: View {
           case .payment:
             PaymentView(onDone: { path.append(.receipt) })
           case .receipt:
-            ReceiptView(onNewSale: { path = [] })
+            ReceiptView(onNewSale: {
+              path = []
+              store.cart.removeAll()
+            })
+          case .settings:
+            SettingsView()
           }
+        }
+        .sheet(isPresented: $showSettings) {
+          SettingsView()
         }
     }
   }

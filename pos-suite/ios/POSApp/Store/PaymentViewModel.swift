@@ -20,18 +20,23 @@ final class PaymentViewModel: ObservableObject {
       state = .error("No terminal selected")
       return
     }
+    
+    // Generate orderRef if it doesn't exist
+    let orderRef = store.orderRef ?? UUID().uuidString.lowercased()
+    store.orderRef = orderRef
+    
     state = .starting
     do {
       _ = try await PaymentsAPI.shared.checkout(
         terminalId: terminal,
         amountMinor: store.amountMinor,
         currency: "NOK",
-        orderRef: store.orderRef,
+        orderRef: orderRef,  // Now guaranteed to be String
         cart: store.cart,
         customer: store.customer
       )
       state = .pending
-      beginPolling(orderRef: store.orderRef)
+      beginPolling(orderRef: orderRef)  // Also fixed here
     } catch {
       state = .error(error.localizedDescription)
     }

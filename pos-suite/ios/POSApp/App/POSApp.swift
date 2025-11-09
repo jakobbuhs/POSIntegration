@@ -16,7 +16,7 @@ struct POSApp: App {
       AppRouter()
         .environmentObject(store)
         .task {
-          await store.bootstrap()
+        
         }
     }
   }
