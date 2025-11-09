@@ -1,34 +1,7 @@
 // server/src/services/sumupCloud.ts
-import fetch from "node-fetch";
 import type { PaymentStatus } from "@prisma/client";
 import { cfg } from "../config";
 import { fetchWithTimeout, HttpTimeoutError, Response } from "./http";
-
-export type SumUpTransaction = {
-  transaction_id?: string;
-  id?: string;
-  status?: string;
-  amount?: { currency?: string; value?: number };
-  foreign_transaction_id?: string;
-  foreignId?: string;
-  metadata?: Record<string, unknown>;
-  scheme?: string;
-  last4?: string;
-  approval_code?: string;
-  message?: string;
-  reader_id?: string;
-  client_transaction_id?: string;
-  [key: string]: unknown;
-};
-
-type SumUpCheckoutStartResponse = {
-  client_transaction_id?: string;
-  [key: string]: unknown;
-};
-
-type SumUpTransactionList = {
-  items?: SumUpTransaction[];
-};
 
 export type SumUpTransaction = {
   transaction_id?: string;

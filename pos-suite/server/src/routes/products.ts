@@ -7,7 +7,12 @@
 //
 
 import { Router } from "express";
-import { getSimplifiedProducts, fetchShopifyProducts } from "../services/shopifyProducts";
+import {
+  getSimplifiedProducts,
+  fetchShopifyProducts,
+  type ShopifyProduct,
+  type SimplifiedProduct
+} from "../services/shopifyProducts";
 
 const r = Router();
 
@@ -55,8 +60,8 @@ r.post("/sync", async (req, res, next) => {
     
     const shopifyProducts = await fetchShopifyProducts();
     
-    const variantCount = shopifyProducts.reduce(
-      (sum, p) => sum + (p.variants?.length || 0),
+    const variantCount = shopifyProducts.reduce<number>(
+      (sum, product: ShopifyProduct) => sum + (product.variants?.length ?? 0),
       0
     );
     
@@ -89,7 +94,7 @@ r.get("/:id", async (req, res, next) => {
     console.log(`📦 Fetching product ${id}`);
     
     const products = await getSimplifiedProducts(currency as string);
-    const product = products.find((p) => p.id === id);
+    const product = products.find((p: SimplifiedProduct) => p.id === id);
     
     if (!product) {
       console.warn(`⚠️  Product ${id} not found`);

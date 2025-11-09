@@ -43,4 +43,23 @@ enum PaymentStatus {
   ERROR
   TIMEOUT
 }
+model SecurityEvent {
+  id        String   @id @default(cuid())
+  eventType String   // WEBHOOK_SIGNATURE_FAILED, WEBHOOK_VERIFICATION_FAILED
+  severity  String   // LOW, MEDIUM, HIGH, CRITICAL
+  details   Json
+  createdAt DateTime @default(now())
+  
+  @@index([eventType, createdAt])
+}
 
+model PaymentEvent {
+  id        String   @id @default(cuid())
+  orderRef  String
+  source    String   // webhook, poll, manual
+  eventType String
+  payload   Json
+  createdAt DateTime @default(now())
+  
+  @@index([orderRef, createdAt])
+}

@@ -6,10 +6,12 @@ import {
   createReaderCheckout,
   getCheckoutStatusByClientId,
   findTransactionByForeignId,
-  mapSumUpStatus
+  mapSumUpStatus,
+  type SumUpTransaction
 } from "../services/sumupCloud";
 import { createOrderInShopify } from "../services/shopifyAdmin";
 import { maybeSendTerminalConfirmation } from "../services/terminalWebhook";
+import { HttpTimeoutError } from "../services/http";
 
 const r = Router();
 const MIN_POLL_AGE_MS = 6500;

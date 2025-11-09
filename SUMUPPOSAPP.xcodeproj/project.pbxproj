@@ -43,8 +43,6 @@
 /* Begin PBXFileReference section */
 		1B17A9C72EC107BB0093CAF5 /* ProductRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductRepository.swift; sourceTree = "<group>"; };
 		1B17A9C92EC108FE0093CAF5 /* products.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = products.ts; sourceTree = "<group>"; };
-		1B17A9CA2EC1091C0093CAF5 /* shopifyProducts-service.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = "shopifyProducts-service.ts"; sourceTree = "<group>"; };
-		1B17A9CB2EC1093D0093CAF5 /* sumupWebhooks-service.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = "sumupWebhooks-service.ts"; sourceTree = "<group>"; };
 		1B9824AB2EB13A4800D927B3 /* SUMUPPOSAPP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SUMUPPOSAPP.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1B9824D72EB13A5E00D927B3 /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouter.swift; sourceTree = "<group>"; };
 		1B9824D82EB13A5E00D927B3 /* POSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = POSApp.swift; sourceTree = "<group>"; };
@@ -379,8 +377,6 @@
 		1B982AD22EB13A5E00D927B3 /* services */ = {
 			isa = PBXGroup;
 			children = (
-				1B17A9CB2EC1093D0093CAF5 /* sumupWebhooks-service.ts */,
-				1B17A9CA2EC1091C0093CAF5 /* shopifyProducts-service.ts */,
 				1B982ACF2EB13A5E00D927B3 /* shopifyAdmin.ts */,
 				1B982AD02EB13A5E00D927B3 /* sumupCloud.ts */,
 				1B982AD12EB13A5E00D927B3 /* sumupSdkProxy.ts */,
