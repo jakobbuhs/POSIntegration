@@ -9,19 +9,58 @@
 import SwiftUI
 
 struct CatalogView: View {
-    @EnvironmentObject var store: AppStore
-    @State private var query = ""
-    @State private var showOverrideFor: CartItem?
-    @Environment(\.horizontalSizeClass) var horizontalSizeClass
-    
-    var next: () -> Void
-    
-    var filtered: [Product] {
-        if query.trimmingCharacters(in: .whitespaces).isEmpty { return store.products }
-        return store.products.filter {
-            $0.title.localizedCaseInsensitiveContains(query) ||
-            ($0.sku ?? "").localizedCaseInsensitiveContains(query)
+  @EnvironmentObject var store: AppStore
+  @State private var query = ""
+  @State private var showOverrideFor: CartItem?
+
+  var next: () -> Void
+
+  var filtered: [Product] {
+    if query.trimmingCharacters(in: .whitespaces).isEmpty { return store.products }
+    return store.products.filter { $0.title.localizedCaseInsensitiveContains(query) || ($0.sku ?? "").contains(query) }
+  }
+
+  var body: some View {
+    BottomCTA {
+      VStack(alignment: .leading, spacing: DesignSystem.Spacing.l) {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.s) {
+          Text("Products")
+            .font(.largeTitle.bold())
+
+          Text("Search and add items to the customer's cart.")
+            .font(.body)
+            .foregroundStyle(.secondary)
         }
+
+        VStack(spacing: DesignSystem.Spacing.s) {
+          TextField("Search products", text: $query)
+            .textFieldStyle(.roundedBorder)
+            .padding(.vertical, DesignSystem.Spacing.xs)
+            .accessibilityLabel("Search products")
+            .accessibilityHint("Filter the list of products by name or SKU.")
+
+          ScrollView {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 160), spacing: DesignSystem.Spacing.m)], spacing: DesignSystem.Spacing.l) {
+              ForEach(filtered) { product in
+                ProductCard(product: product) {
+                  store.add(product: product)
+                }
+              }
+            }
+            .padding(.bottom, DesignSystem.Spacing.l)
+          }
+        }
+      }
+      .padding(.horizontal, DesignSystem.Sizing.horizontalPadding)
+      .padding(.top, DesignSystem.Spacing.l)
+    } actions: {
+      Button("View cart (\(store.cart.reduce(0) { $0 + $1.qty }))") {
+        next()
+      }
+      .buttonStyle(PrimaryButtonStyle())
+      .disabled(store.cart.isEmpty)
+      .accessibilityLabel("View cart")
+      .accessibilityHint("Opens the cart to review selected items.")
     }
     
     // Responsive columns based on device size
@@ -141,70 +180,41 @@ struct CatalogView: View {
     }
 }
 
-// MARK: - Product Card Component
-struct ProductCard: View {
+  private struct ProductCard: View {
     let product: Product
-    let onAdd: () -> Void
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Product Image Placeholder
-            RoundedRectangle(cornerRadius: 12)
-                .fill(
-                    LinearGradient(
-                        colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(height: 120)
-                .overlay(
-                    Image(systemName: "photo")
-                        .font(.system(size: 40))
-                        .foregroundColor(.gray.opacity(0.3))
-                )
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(product.title)
-                    .font(.system(size: 15, weight: .semibold))
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
-                
-                if let sku = product.sku, !sku.isEmpty {
-                    Text("SKU: \(sku)")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                }
-                
-                Text(CurrencyFormatter.nok(minor: product.priceMinor))
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.primary)
-            }
-            
-            // Add Button
-            Button(action: onAdd) {
-                HStack {
-                    Image(systemName: "plus")
-                    Text("Add")
-                        .fontWeight(.medium)
-                }
-                .font(.subheadline)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-                .background(Color.blue)
-                .cornerRadius(10)
-            }
-        }
-        .padding(12)
-        .background(Color(.systemBackground))
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
-    }
-}
+    var onAdd: () -> Void
 
-// MARK: - Price Override Sheet
-struct PriceOverrideSheet: View {
+    var body: some View {
+      VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
+        Text(product.title)
+          .font(.title3.weight(.semibold))
+          .multilineTextAlignment(.leading)
+
+        Text(CurrencyFormatter.nok(minor: product.priceMinor))
+          .font(.title3)
+          .foregroundStyle(.secondary)
+
+        Button {
+          onAdd()
+        } label: {
+          Label("Add", systemImage: "plus")
+            .labelStyle(.titleAndIcon)
+        }
+        .buttonStyle(PrimaryButtonStyle())
+        .accessibilityLabel("Add \(product.title) to cart")
+        .accessibilityHint("Adds the product to the shopping cart.")
+      }
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .padding(DesignSystem.Spacing.m)
+      .background(
+        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.standard, style: .continuous)
+          .fill(Color(uiColor: .secondarySystemBackground))
+      )
+    }
+  }
+
+  struct OverrideSheet: View, Identifiable {
+    let id = UUID()
     let item: CartItem
     var onSave: (Int?) -> Void
     @State private var overrideText = ""

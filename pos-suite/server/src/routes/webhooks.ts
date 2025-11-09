@@ -17,7 +17,12 @@ const r = Router();
 function verifySignature(raw: string, signature: string, secret: string) {
   if (!signature || !secret) return false;
   const expected = crypto.createHmac("sha256", secret).update(raw).digest("hex");
-  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+  const actual = Buffer.from(signature);
+  const expectedBuf = Buffer.from(expected);
+  if (actual.length !== expectedBuf.length) {
+    return false;
+  }
+  return crypto.timingSafeEqual(expectedBuf, actual);
 }
 
 r.post("/sumup", expressRawJson, async (req, res) => {
@@ -25,17 +30,26 @@ r.post("/sumup", expressRawJson, async (req, res) => {
   const sig = req.header("x-sumup-signature") || "";
   const secret = process.env.SUMUP_WEBHOOK_SECRET || "";
 
-  if (!verifySignature(rawBody, sig, secret)) {
+  if (secret && !verifySignature(rawBody, sig, secret)) {
     return res.status(401).send("Invalid signature");
   }
 
-  const evt = JSON.parse(rawBody);
+  let evt: any;
+  try {
+    evt = JSON.parse(rawBody || "{}");
+  } catch (err) {
+    console.error("Failed to parse SumUp webhook payload", err);
+    return res.status(400).send("Invalid JSON");
+  }
 
-  // Example payload shape (adjust fields to what SumUp actually posts)
-  // evt.data: { foreign_transaction_id, client_transaction_id, transaction_id, status, amount, currency,
-  //             reader_id, scheme, last4, approval_code }
+  const payload = (evt.payload || evt.data || {}) as SumUpTransaction;
+  const clientTxnId =
+    payload.client_transaction_id || (payload as any).clientTransactionId || null;
+  const statusRaw = ((payload.status as string | undefined) || "").trim() ||
+    ((evt.status as string | undefined) || "").trim();
+  const mapped = mapSumUpStatus(statusRaw || undefined);
 
-  const data = evt.data || {};
+  const data = (evt.data || {}) as SumUpTransaction;
   const foreignId = data.foreign_transaction_id || data.foreignId || ""; // your orderRef
   const statusMap: Record<string, "APPROVED"|"DECLINED"|"CANCELLED"|"ERROR"> = {
     "SUCCESSFUL": "APPROVED", "APPROVED": "APPROVED",
@@ -50,35 +64,77 @@ r.post("/sumup", expressRawJson, async (req, res) => {
       status: mapped,
       transactionId: data.transaction_id || null,
       clientTransactionId: data.client_transaction_id || null,
-      amountMinor: data.amount?.value || undefined,
-      currency: data.amount?.currency || undefined,
+      amountMinor: data.amount?.value ?? undefined,
+      currency: data.amount?.currency ?? undefined,
       readerId: data.reader_id || undefined,
       scheme: data.scheme || undefined,
       last4: data.last4 || undefined,
-      approvalCode: data.approval_code || undefined,
-      message: data.message || null,
+      approvalCode: (data as any).approval_code || undefined,
+      message: (data as any).message || null,
     },
     create: {
       orderRef: foreignId,
       readerId: data.reader_id || "unknown",
-      amountMinor: data.amount?.value || 0,
-      currency: data.amount?.currency || "NOK",
+      amountMinor: data.amount?.value ?? 0,
+      currency: data.amount?.currency ?? "NOK",
       status: mapped,
       transactionId: data.transaction_id || null,
       clientTransactionId: data.client_transaction_id || null,
       scheme: data.scheme || undefined,
       last4: data.last4 || undefined,
-      approvalCode: data.approval_code || undefined,
-      message: data.message || null,
+      approvalCode: (data as any).approval_code || undefined,
+      message: (data as any).message || null,
     }
+  }
+
+  if (!attempt) {
+    console.warn("SumUp webhook received without matching attempt", {
+      clientTransactionId: clientTxnId,
+      transactionId: payload.transaction_id,
+      status: statusRaw
+    });
+    return res.status(202).json({ ok: false, reason: "attempt-not-found" });
+  }
+
+  const resolvedStatus = mapped === "PENDING" ? attempt.status : mapped;
+
+  const updateData: any = {
+    status: resolvedStatus,
+    transactionId: hydratedTx.transaction_id ?? attempt.transactionId ?? null,
+    clientTransactionId:
+      attempt.clientTransactionId ??
+      hydratedTx.client_transaction_id ??
+      (hydratedTx as any).clientTransactionId ??
+      clientTxnId,
+    scheme: hydratedTx.scheme ?? attempt.scheme ?? null,
+    last4: hydratedTx.last4 ?? attempt.last4 ?? null,
+    approvalCode: (hydratedTx as any).approval_code ?? attempt.approvalCode ?? null,
+    message: (hydratedTx as any).message ?? attempt.message ?? null
+  };
+
+  if (hydratedTx.reader_id) {
+    updateData.readerId = hydratedTx.reader_id;
+  }
+  if (hydratedTx.amount?.value != null) {
+    updateData.amountMinor = hydratedTx.amount.value;
+  }
+  if (hydratedTx.amount?.currency) {
+    updateData.currency = hydratedTx.amount.currency;
+  } else if (hydratedTx.currency) {
+    updateData.currency = hydratedTx.currency;
+  }
+
+  attempt = await prisma.paymentAttempt.update({
+    where: { id: attempt.id },
+    data: updateData
   });
 
   // On success → create Shopify order if not already created
   if (attempt.status === "APPROVED" && !attempt.shopifyOrderId) {
     try {
       const order = await createOrderInShopify({
-        cart: [], // If you need cart lines, store them in PaymentAttempt at checkout start
-        customer: {}, // same as above: store minimal customer info at start
+        cart: (attempt.cartJson as any) || [],
+        customer: (attempt.customerJson as any) || {},
         amountMinor: attempt.amountMinor,
         currency: attempt.currency,
         transactionId: attempt.transactionId!,
